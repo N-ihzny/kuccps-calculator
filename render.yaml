@@ -1,0 +1,54 @@
+services:
+  # Backend API Service
+  - type: web
+    name: kuccps-api
+    env: node
+    buildCommand: npm install
+    startCommand: node backend/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: kuccps-db
+          property: host
+      - key: DB_USER
+        fromDatabase:
+          name: kuccps-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: kuccps-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: kuccps-db
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PAYSTACK_PUBLIC_KEY
+        value: pk_live_ff445561a3226d3adb26c22f9e0578c9f5b895a2
+      - key: EMAILJS_PUBLIC_KEY
+        value: OJTlrpQojM9U40Ez3
+      - key: EMAILJS_SERVICE_ID
+        value: service_ufnfstc
+      - key: EMAILJS_TEMPLATE_ID
+        value: template_h0uyc6s
+
+  # Frontend Static Site
+  - type: web
+    name: kuccps-app
+    env: static
+    buildCommand: echo "Static site, no build needed"
+    staticPublishPath: ./frontend
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          name: kuccps-api
+          type: web
+          property: host
+
+databases:
+  - name: kuccps-db
+    databaseName: kuccps_calculator
+    user: kuccps_user

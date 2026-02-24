@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-KDK6HDVX');</script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BB3KSJB812"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-BB3KSJB812');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>KUCCPS Course Checker - User Guide</title>
+    
+    <!-- CSS Links -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =====================================================
+           MODERN STYLING - USER GUIDE
+           ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #60a5fa;
+            --secondary: #10b981;
+            --accent: #8b5cf6;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-1: linear-gradient(135deg, #2563eb, #7c3aed);
+            --gradient-2: linear-gradient(135deg, #10b981, #059669);
+            --gradient-3: linear-gradient(135deg, #f59e0b, #f97316);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 40px -8px rgba(0,0,0,0.2);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+        }
+
+        /* Navigation Bar */
+        .navbar-custom {
+            background: white;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
+            padding: 0.8rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .navbar-custom .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        /* HIGHLY VISIBLE BACK BUTTON */
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #1e293b;  /* Dark background */
+            border: 2px solid #ffffff;
+            border-radius: 50px;
+            color: white;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .back-btn:hover {
+            background: #0f172a;
+            transform: translateX(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .back-btn i {
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        /* ALREADY PAID BUTTON */
+        .payment-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(16,185,129,0.5);
+            border: 2px solid white;
+        }
+
+        .payment-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 30px -5px rgba(16,185,129,0.8);
+        }
+
+        .payment-btn i {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        /* Mobile Bottom Navigation */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+            z-index: 998;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .mobile-nav-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            padding: 12px 0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-weight: 600;
+        }
+
+        .mobile-nav-item.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .mobile-nav-item.active .mobile-nav-icon {
+            color: white;
+        }
+
+        .mobile-nav-icon {
+            font-size: 1.4rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .mobile-nav-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .mobile-payment-btn {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 997;
+            animation: bounce 2s infinite;
+            border: 2px solid white;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1280px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-xl);
+            padding: 60px 40px;
+            margin-bottom: 40px;
+            color: white;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
+            animation: fadeInDown 0.8s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            color: white;
+            max-width: 800px;
+            margin: 0 auto 25px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .hero-tagline {
+            display: inline-block;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 30px;
+            border-radius: 50px;
+            border: 2px solid white;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px -12px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+            animation-fill-mode: both;
+        }
+
+        .section-card:nth-child(1) { animation-delay: 0.1s; }
+        .section-card:nth-child(2) { animation-delay: 0.2s; }
+        .section-card:nth-child(3) { animation-delay: 0.3s; }
+        .section-card:nth-child(4) { animation-delay: 0.4s; }
+        .section-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 50px -12px rgba(0,0,0,0.4);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        /* Process Steps */
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .process-step {
+            text-align: center;
+            padding: 30px 20px;
+            background: #f8fafc;
+            border-radius: var(--radius-lg);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .process-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 20px -5px rgba(102,126,234,0.5);
+        }
+
+        .process-step h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .process-step p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Category Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .category-item {
+            background: white;
+            padding: 30px 20px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .category-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .category-item i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .category-item.degree i { color: #2563eb; }
+        .category-item.diploma i { color: #10b981; }
+        .category-item.certificate i { color: #f59e0b; }
+        .category-item.kmtc i { color: #ef4444; }
+
+        .category-item h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .category-item p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: #f0f9ff;
+            border-left: 6px solid var(--primary);
+            padding: 25px;
+            border-radius: var(--radius-lg);
+            margin: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .info-box.warning {
+            border-left-color: var(--danger);
+            background: #fef2f2;
+        }
+
+        .info-box.note {
+            border-left-color: var(--warning);
+            background: #fffbeb;
+        }
+
+        /* Payment Guide Section */
+        .payment-guide-section {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            margin: 30px 0;
+            border: 3px solid var(--secondary);
+            text-align: center;
+            box-shadow: 0 20px 40px -12px rgba(16,185,129,0.3);
+        }
+
+        .payment-guide-title {
+            color: #065f46;
+            font-size: 2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .payment-guide-button {
+            background: var(--gradient-2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: inline-block;
+            text-decoration: none;
+            box-shadow: 0 10px 20px -5px rgba(16,185,129,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .payment-guide-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 30px -5px rgba(16,185,129,0.7);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 40px 30px 30px;
+            color: white;
+            margin-top: 60px;
+            border-radius: 30px 30px 0 0;
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .copyright {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 30px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .mobile-bottom-nav {
+                display: block;
+            }
+            
+            .mobile-payment-btn {
+                display: block;
+            }
+            
+            .process-grid,
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .process-grid,
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-section {
+                padding: 40px 20px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .section-card {
+                padding: 30px 20px;
+            }
+            
+            .back-btn, .payment-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar-custom">
+        <div class="container">
+            <a class="back-btn" href="#" onclick="goBack()">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            
+            <a class="payment-btn" href="alreadypaid.html">
+                <i class="bi bi-question-circle-fill"></i> Already Paid?
+            </a>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation (Simplified) -->
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-nav-container">
+            <a class="mobile-nav-item" href="#" onclick="goBack()">
+                <i class="bi bi-arrow-left mobile-nav-icon"></i>
+                <span class="mobile-nav-text">Back</span>
+            </a>
+            <a class="mobile-nav-item active" href="userguide.html">
+                <i class="bi bi-book-half mobile-nav-icon"></i>
+                <span class="mobile-nav-text">Guide</span>
+            </a>
+            <a class="mobile-nav-item" href="alreadypaid.html">
+                <i class="bi bi-question-circle-fill mobile-nav-icon"></i>
+                <span class="mobile-nav-text">Paid?</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Mobile Already Paid Button -->
+    <a class="mobile-payment-btn" href="alreadypaid.html">
+        <i class="bi bi-question-circle-fill"></i> Paid?
+    </a>
+
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1>Complete User Guide</h1>
+            <p>Learn how to find courses you qualify for using the KUCCPS Course Checker platform. Simple steps, accurate results, and secure payments.</p>
+            <div class="hero-tagline">
+                <i class="bi bi-mortarboard-fill me-2"></i>
+                Your journey to the perfect educational path starts here
+            </div>
+        </section>
+
+        <!-- Welcome Section -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="bi bi-mortarboard-fill"></i>
+                Welcome to KUCCPS Course Checker
+            </h2>
+            <p style="color: var(--gray); line-height: 1.8; margin-bottom: 20px;">This comprehensive guide will walk you through using our platform to discover courses you qualify for based on your KCSE results. Our system provides accurate, up-to-date information to help you make informed decisions about your educational future.</p>
+            
+            <div class="info-box">
+                <i class="bi bi-lightbulb-fill" style="color: var(--primary); margin-right: 10px;"></i>
+                <strong>Pro Tip:</strong> You can check courses across multiple categories (Degree, Diploma, Certificate, KMTC) in a single session for maximum convenience.
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="bi bi-diagram-3-fill"></i>
+                How It Works - Simple 4-Step Process
+            </h2>
+            
+            <div class="process-grid">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3>Select Category</h3>
+                    <p>Choose your desired program type (Degree, Diploma, Certificate, or KMTC)</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3>Enter Grades</h3>
+                    <p>Input your KCSE subject grades accurately for best results</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3>Secure Payment</h3>
+                    <p>Make a one-time payment of KES 200 via Paystack (cards & mobile money)</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3>View Results</h3>
+                    <p>Get instant access to all courses you qualify for across Kenya</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 1: Select Category -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+                Step 1: Select Your Program Category
+            </h2>
+            
+            <p style="color: var(--gray); margin-bottom: 25px;">Start by selecting the program category that matches your educational goals:</p>
+            
+            <div class="category-grid">
+                <div class="category-item degree" onclick="window.location.href='degree-calculator.html'">
+                    <i class="bi bi-search"></i>
+                    <h4>Degree Programs</h4>
+                    <p>Bachelor's degrees from all Kenyan universities</p>
+                </div>
+                <div class="category-item diploma" onclick="window.location.href='diploma.html'">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <h4>Diploma Programs</h4>
+                    <p>Professional and technical diplomas</p>
+                </div>
+                <div class="category-item certificate" onclick="window.location.href='certificate.html'">
+                    <i class="bi bi-award-fill"></i>
+                    <h4>Certificate Programs</h4>
+                    <p>Short-term skill-based certifications</p>
+                </div>
+                <div class="category-item kmtc" onclick="window.location.href='kmtc.html'">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                    <h4>KMTC Programs</h4>
+                    <p>Medical and health sciences courses</p>
+                </div>
+            </div>
+            
+            <div class="info-box note">
+                <i class="bi bi-info-circle-fill" style="color: var(--warning); margin-right: 10px;"></i>
+                <strong>Note:</strong> Each category has different subject requirements. Make sure you enter all your KCSE subjects for accurate matching.
+            </div>
+        </section>
+
+        <!-- Step 2: Enter Grades -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="bi bi-pencil-square"></i>
+                Step 2: Enter Your KCSE Grades
+            </h2>
+            
+            <p style="color: var(--gray); margin-bottom: 20px;">After selecting your category, you'll need to enter your KCSE subject grades:</p>
+            
+            <ul style="list-style: none; padding: 0; margin: 25px 0;">
+                <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="bi bi-check-circle-fill" style="color: var(--success); font-size: 1.2rem;"></i>
+                    <span><strong>Mathematics, English, Kiswahili</strong> - Core compulsory subjects</span>
+                </li>
+                <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="bi bi-check-circle-fill" style="color: var(--success); font-size: 1.2rem;"></i>
+                    <span><strong>Sciences</strong> - Chemistry, Biology, Physics (at least two sciences)</span>
+                </li>
+                <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="bi bi-check-circle-fill" style="color: var(--success); font-size: 1.2rem;"></i>
+                    <span><strong>Humanities</strong> - History, Geography, CRE (at least one)</span>
+                </li>
+                <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="bi bi-check-circle-fill" style="color: var(--success); font-size: 1.2rem;"></i>
+                    <span><strong>Technical Subjects</strong> - Optional, but can improve your chances</span>
+                </li>
+            </ul>
+            
+            <div class="info-box warning">
+                <i class="bi bi-exclamation-triangle-fill" style="color: var(--danger); margin-right: 10px;"></i>
+                <strong>Important:</strong> Double-check your grades before submitting. Incorrect entries will lead to inaccurate results.
+            </div>
+        </section>
+
+        <!-- Step 3: Payment -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="bi bi-credit-card-fill"></i>
+                Step 3: Secure Payment (KES 200)
+            </h2>
+            
+            <div class="payment-guide-section">
+                <div class="payment-guide-title">💳 Secure Payment via Paystack</div>
+                <p style="margin-bottom: 20px; font-size: 1.2rem;">One-time payment for unlimited access to all categories</p>
+                
+                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin: 30px 0;">
+                    <span><i class="bi bi-check-circle-fill text-success"></i> Cards Accepted</span>
+                    <span><i class="bi bi-check-circle-fill text-success"></i> M-Pesa</span>
+                    <span><i class="bi bi-check-circle-fill text-success"></i> Mobile Money</span>
+                </div>
+                
+                <p style="color: #065f46;">After successful payment, you'll be redirected to your results instantly. A copy will also be sent to your email.</p>
+            </div>
+            
+            <div class="info-box">
+                <i class="bi bi-arrow-repeat me-2" style="color: var(--primary);"></i>
+                <strong>Already paid?</strong> <a href="alreadypaid.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">Click here to retrieve your results</a> using your KCSE Index Number and Email.
+            </div>
+        </section>
+
+        <!-- Step 4: View Results -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="bi bi-graph-up"></i>
+                Step 4: View Your Personalized Results
+            </h2>
+            
+            <p style="color: var(--gray); margin-bottom: 20px;">After successful payment, you'll see:</p>
+            
+            <ul style="list-style: none; padding: 0; margin: 25px 0;">
+                <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="bi bi-mortarboard-fill" style="color: var(--primary); font-size: 1.2rem;"></i>
+                    <span><strong>Degree Programs</strong> - All universities where you qualify</span>
+                </li>
+                <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="bi bi-file-earmark-text" style="color: var(--secondary); font-size: 1.2rem;"></i>
+                    <span><strong>Diploma Programs</strong> - Technical and professional courses</span>
+                </li>
+                <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="bi bi-award-fill" style="color: var(--warning); font-size: 1.2rem;"></i>
+                    <span><strong>Certificate Programs</strong> - Short-term certifications</span>
+                </li>
+                <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="bi bi-heart-pulse-fill" style="color: var(--danger); font-size: 1.2rem;"></i>
+                    <span><strong>KMTC Programs</strong> - Medical training courses</span>
+                </li>
+            </ul>
+            
+            <div class="info-box">
+                <i class="bi bi-download" style="color: var(--primary); margin-right: 10px;"></i>
+                <strong>Pro Tip:</strong> You can download your results or share them via WhatsApp for future reference.
+            </div>
+        </section>
+
+        <!-- Support Section -->
+        <section class="section-card">
+            <h2 class="section-title">
+                <i class="bi bi-headset"></i>
+                Need Help? Contact Support
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px;">
+                <div style="text-align: center; background: #f3f4f6; padding: 20px; border-radius: 16px;">
+                    <i class="bi bi-whatsapp" style="font-size: 2.5rem; color: #25D366;"></i>
+                    <h4 style="margin: 10px 0;">WhatsApp</h4>
+                    <p style="color: var(--gray); font-weight: 600;">+254 743 665 527</p>
+                </div>
+                <div style="text-align: center; background: #f3f4f6; padding: 20px; border-radius: 16px;">
+                    <i class="bi bi-envelope-fill" style="font-size: 2.5rem; color: var(--primary);"></i>
+                    <h4 style="margin: 10px 0;">Email</h4>
+                    <p style="color: var(--gray); font-weight: 600;">kuccpscoursequeries@gmail.com</p>
+                </div>
+                <div style="text-align: center; background: #f3f4f6; padding: 20px; border-radius: 16px;">
+                    <i class="bi bi-telephone-fill" style="font-size: 2.5rem; color: var(--secondary);"></i>
+                    <h4 style="margin: 10px 0;">Call</h4>
+                    <p style="color: var(--gray); font-weight: 600;">+254 743 665 527</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="copyright">
+                &copy; 2026 KUCCPS Course Checker. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

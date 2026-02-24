@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUCCPS Course Checker - Degree Programs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- EmailJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="cluster-calculator.js"></script>
+    <script src="payment-verification.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-custom .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #3b82f6;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-links a:hover {
+            background: rgba(59,130,246,0.2);
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .nav-links a.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .payment-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 40px;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title i {
+            transition: transform 0.3s ease;
+        }
+
+        .section-title.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .subject-grid.collapsed {
+            display: none;
+        }
+
+        .subject-item label {
+            display: block;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .main-grade-select {
+            max-width: 400px;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px auto 40px;
+            display: block;
+            min-width: 280px;
+            box-shadow: 0 4px 6px rgba(59,130,246,0.2);
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59,130,246,0.3);
+        }
+
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payment-modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            border: 4px solid #3b82f6;
+        }
+
+        .payment-amount {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 60px;
+            display: inline-block;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        .btn-pay {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            min-width: 200px;
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59,130,246,0.3);
+        }
+
+        .btn-pay:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            min-width: 200px;
+        }
+
+        .results-section {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 40px 0;
+            display: none;
+        }
+
+        .results-title {
+            font-size: 2rem;
+            color: #0f172a;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            color: #3b82f6;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .course-card {
+            background: white;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .course-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        .institution {
+            color: #3b82f6;
+            font-size: 0.95rem;
+        }
+
+        .existing-payment-banner {
+            background-color: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .existing-payment-banner h4 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: #3b82f6;
+        }
+
+        .copyright {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #334155;
+        }
+
+        /* Back button only */
+        .back-link {
+            margin-bottom: 20px;
+        }
+        
+        .back-link a {
+            color: #3b82f6;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .subject-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar-custom">
+        <div class="container">
+            <a class='logo' href='#' onclick="goBack()">
+                <i class="bi bi-arrow-left"></i>
+                <span>Back</span>
+            </a>
+            
+            <!-- Already Paid button only -->
+            <a class='payment-btn' href='alreadypaid.html'>
+                <i class="bi bi-question-circle-fill"></i> Already Paid?
+            </a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <h1 class="page-title">KUCCPS COURSE CHECKER - DEGREE PROGRAMS</h1>
+        <p class="page-subtitle">Enter your KCSE grades to find all degree courses you qualify for</p>
+
+        <div id="existingPaymentBanner" class="existing-payment-banner">
+            <h4><i class="bi bi-check-circle-fill"></i> Payment Verified</h4>
+            <p>You have already made a payment. Your results will be shown immediately.</p>
+        </div>
+
+        <div id="successMessage" class="success-message">
+            <i class="bi bi-check-circle-fill"></i> <span id="successText"></span>
+        </div>
+
+        <form id="gradeForm">
+            <div class="form-section">
+                <h2 class="section-title">Main KCSE Grade</h2>
+                <div class="main-grade-select">
+                    <label for="kcse_mean_grade">Overall KCSE Grade <span style="color: #ef4444;">*</span></label>
+                    <select id="kcse_mean_grade" required>
+                        <option value="">Select grade</option>
+                        <option value="A">A (12 points)</option>
+                        <option value="A-">A- (11 points)</option>
+                        <option value="B+">B+ (10 points)</option>
+                        <option value="B">B (9 points)</option>
+                        <option value="B-">B- (8 points)</option>
+                        <option value="C+">C+ (7 points)</option>
+                        <option value="C">C (6 points)</option>
+                        <option value="C-">C- (5 points)</option>
+                        <option value="D+">D+ (4 points)</option>
+                        <option value="D">D (3 points)</option>
+                        <option value="D-">D- (2 points)</option>
+                        <option value="E">E (1 point)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Core Subjects</h2>
+                <div class="subject-grid">
+                    <div class="subject-item">
+                        <label>Mathematics</label>
+                        <select id="math">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="subject-item">
+                        <label>English</label>
+                        <select id="english">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="subject-item">
+                        <label>Kiswahili</label>
+                        <select id="kiswahili">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Sciences</h2>
+                <div class="subject-grid">
+                    <div class="subject-item">
+                        <label>Chemistry</label>
+                        <select id="chemistry">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="subject-item">
+                        <label>Biology</label>
+                        <select id="biology">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="subject-item">
+                        <label>Physics</label>
+                        <select id="physics">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Humanities</h2>
+                <div class="subject-grid">
+                    <div class="subject-item">
+                        <label>History</label>
+                        <select id="history">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="subject-item">
+                        <label>Geography</label>
+                        <select id="geography">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="subject-item">
+                        <label>CRE</label>
+                        <select id="cre">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TECHNICAL SUBJECTS - DROPDOWN MENU STYLE -->
+            <div class="form-section">
+                <h2 class="section-title" onclick="toggleTechnicalSubjects()">
+                    Technical Subjects <small style="font-weight: normal; color: #64748b;">(Optional)</small>
+                    <i class="bi bi-chevron-down" id="techArrow"></i>
+                </h2>
+                <div id="technicalSubjectsGrid" class="subject-grid">
+                    <!-- Agriculture -->
+                    <div class="subject-item">
+                        <label>Agriculture</label>
+                        <select id="agriculture">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Computer Studies -->
+                    <div class="subject-item">
+                        <label>Computer Studies</label>
+                        <select id="computer">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Art And Design -->
+                    <div class="subject-item">
+                        <label>Art And Design</label>
+                        <select id="art">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Woodwork -->
+                    <div class="subject-item">
+                        <label>Woodwork</label>
+                        <select id="woodwork">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Homescience -->
+                    <div class="subject-item">
+                        <label>Homescience</label>
+                        <select id="homescience">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Business Studies -->
+                    <div class="subject-item">
+                        <label>Business Studies</label>
+                        <select id="business">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Music -->
+                    <div class="subject-item">
+                        <label>Music</label>
+                        <select id="music">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Building And Construction -->
+                    <div class="subject-item">
+                        <label>Building And Construction</label>
+                        <select id="building">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Electricity And Electronics -->
+                    <div class="subject-item">
+                        <label>Electricity And Electronics</label>
+                        <select id="electricity">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Metalwork -->
+                    <div class="subject-item">
+                        <label>Metalwork</label>
+                        <select id="metalwork">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- French -->
+                    <div class="subject-item">
+                        <label>French</label>
+                        <select id="french">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- German -->
+                    <div class="subject-item">
+                        <label>German</label>
+                        <select id="german">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Aviation -->
+                    <div class="subject-item">
+                        <label>Aviation</label>
+                        <select id="aviation">
+                            <option value="">Select grade</option>
+                            <option value="A">A</option><option value="A-">A-</option><option value="B+">B+</option>
+                            <option value="B">B</option><option value="B-">B-</option><option value="C+">C+</option>
+                            <option value="C">C</option><option value="C-">C-</option><option value="D+">D+</option>
+                            <option value="D">D</option><option value="D-">D-</option><option value="E">E</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="check-btn" onclick="collectGrades()">
+                <i class="bi bi-calculator"></i> Find My Degree Courses
+            </button>
+        </form>
+
+        <div id="resultsSection" class="results-section">
+            <h2 class="results-title">🎓 KUCCPS COURSE CHECKER</h2>
+            <div id="resultsContent"></div>
+        </div>
+    </main>
+
+    <div id="paymentModal" class="payment-modal">
+        <div class="payment-modal-content">
+            <h3>💰 Payment Required</h3>
+            <p>Complete payment to view your personalized results</p>
+            <div class="payment-amount">KES 200</div>
+            
+            <input type="email" id="paymentEmail" class="form-control" placeholder="Your Email Address" required>
+            <input type="text" id="paymentIndex" class="form-control" placeholder="KCSE Index Number (11 digits)" required>
+            <input type="text" id="paymentFullName" class="form-control" placeholder="Your Full Name" required>
+            <input type="tel" id="paymentPhone" class="form-control" placeholder="Phone Number" required>
+            
+            <div style="margin: 30px 0;">
+                <button class="btn-pay" onclick="initializePaystackPayment()">
+                    <i class="bi bi-lock-fill"></i> Pay KES 200 Now
+                </button>
+                <button class="btn-cancel" onclick="closePaymentModal()">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </button>
+            </div>
+            <div id="paymentStatus" style="margin-top: 15px; font-size: 14px;"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="copyright">
+                &copy; 2026 KUCCPS Course Checker. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize EmailJS with your public key
+        (function() {
+            emailjs.init('OJTlrpQojM9U40Ez3');
+        })();
+
+        const PAYSTACK_PUBLIC_KEY = 'pk_live_ff445561a3226d3adb26c22f9e0578c9f5b895a2';
+        
+        let collectedGrades = {};
+        let paymentReference = null;
+
+        function goBack() {
+            window.history.back();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Degree page loaded');
+            
+            if (typeof paymentVerification !== 'undefined' && paymentVerification.hasAccess()) {
+                document.getElementById('existingPaymentBanner').style.display = 'block';
+            }
+            
+            // Check if there's a pending payment to verify
+            checkPendingPayment();
+        });
+
+        // Function to toggle Technical Subjects dropdown
+        function toggleTechnicalSubjects() {
+            const grid = document.getElementById('technicalSubjectsGrid');
+            const arrow = document.getElementById('techArrow');
+            
+            if (grid.classList.contains('collapsed')) {
+                grid.classList.remove('collapsed');
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                grid.classList.add('collapsed');
+                arrow.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        function checkPendingPayment() {
+            const pendingRef = localStorage.getItem('pendingPaymentRef');
+            const pendingEmail = localStorage.getItem('pendingPaymentEmail');
+            const pendingIndex = localStorage.getItem('pendingPaymentIndex');
+            const pendingName = localStorage.getItem('pendingPaymentName');
+            const pendingPhone = localStorage.getItem('pendingPaymentPhone');
+            
+            if (pendingRef && pendingEmail && pendingIndex) {
+                document.getElementById('paymentStatus').innerHTML = '⏳ Verifying your payment...';
+                verifyPaymentWithPaystack(pendingRef, pendingEmail, pendingIndex, pendingPhone, pendingName);
+            }
+        }
+
+        function showSuccess(message) {
+            document.getElementById('successText').innerHTML = message;
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 10000);
+        }
+
+        function collectGrades() {
+            console.log('Collecting grades...');
+            
+            collectedGrades = {
+                meanGrade: document.getElementById('kcse_mean_grade').value,
+                Mathematics: document.getElementById('math').value,
+                English: document.getElementById('english').value,
+                Kiswahili: document.getElementById('kiswahili').value,
+                Chemistry: document.getElementById('chemistry').value,
+                Biology: document.getElementById('biology').value,
+                Physics: document.getElementById('physics').value,
+                History: document.getElementById('history').value,
+                Geography: document.getElementById('geography').value,
+                CRE: document.getElementById('cre').value,
+                Agriculture: document.getElementById('agriculture').value,
+                'Computer Studies': document.getElementById('computer').value,
+                'Art And Design': document.getElementById('art')?.value || '',
+                Woodwork: document.getElementById('woodwork')?.value || '',
+                Homescience: document.getElementById('homescience')?.value || '',
+                'Business Studies': document.getElementById('business').value,
+                Music: document.getElementById('music')?.value || '',
+                'Building And Construction': document.getElementById('building')?.value || '',
+                'Electricity And Electronics': document.getElementById('electricity')?.value || '',
+                Metalwork: document.getElementById('metalwork')?.value || '',
+                French: document.getElementById('french')?.value || '',
+                German: document.getElementById('german')?.value || '',
+                Aviation: document.getElementById('aviation')?.value || ''
+            };
+            
+            if (!collectedGrades.meanGrade) {
+                alert('Please select your KCSE Mean Grade');
+                return;
+            }
+
+            if (typeof paymentVerification !== 'undefined' && paymentVerification.hasAccess()) {
+                displayResults();
+            } else {
+                document.getElementById('paymentModal').style.display = 'flex';
+            }
+        }
+
+        function displayResults() {
+            const matches = findMatchingCourses(collectedGrades, 'degree');
+            
+            let html = `<h3 class="category-title">DEGREE PROGRAMS</h3>`;
+            
+            if (!matches || matches.length === 0) {
+                html += '<p>No degree courses match your grades.</p>';
+            } else {
+                matches.forEach(match => {
+                    if (match.courses) {
+                        match.courses.forEach(course => {
+                            const institutions = course.institutions ? course.institutions.join(' • ') : 'Various institutions';
+                            html += `
+                                <div class="course-card">
+                                    <div class="course-name">📚 ${course.name}</div>
+                                    <div class="institution">🏛️ ${institutions}</div>
+                                </div>
+                            `;
+                        });
+                    }
+                });
+            }
+            
+            document.getElementById('resultsContent').innerHTML = html;
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function findMatchingCourses(grades, type) {
+            return [
+                {
+                    courses: [
+                        { name: "Bachelor of Medicine and Surgery", institutions: ["University of Nairobi", "Kenyatta University", "Moi University"] },
+                        { name: "Bachelor of Pharmacy", institutions: ["University of Nairobi", "JKUAT"] },
+                        { name: "Bachelor of Computer Science", institutions: ["University of Nairobi", "JKUAT", "Strathmore University"] },
+                        { name: "Bachelor of Civil Engineering", institutions: ["University of Nairobi", "JKUAT", "Moi University"] },
+                        { name: "Bachelor of Laws (LLB)", institutions: ["University of Nairobi", "Kenyatta University", "Strathmore University"] },
+                        { name: "Bachelor of Commerce", institutions: ["University of Nairobi", "Kenyatta University", "Moi University"] }
+                    ]
+                }
+            ];
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        function initializePaystackPayment() {
+            const email = document.getElementById('paymentEmail').value;
+            const indexNumber = document.getElementById('paymentIndex').value;
+            const fullName = document.getElementById('paymentFullName').value;
+            const phone = document.getElementById('paymentPhone').value;
+            
+            if (!email || !indexNumber || !fullName || !phone) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (!/^\d{11}$/.test(indexNumber)) {
+                alert('Please enter a valid 11-digit KCSE Index Number');
+                return;
+            }
+
+            // Check if already paid
+            if (typeof paymentVerification !== 'undefined') {
+                const existing = paymentVerification.checkExistingPayment(indexNumber, email);
+                if (existing && existing.paid) {
+                    alert('Payment already exists! Showing results.');
+                    closePaymentModal();
+                    displayResults();
+                    document.getElementById('existingPaymentBanner').style.display = 'block';
+                    return;
+                }
+            }
+
+            const payBtn = document.querySelector('.btn-pay');
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+
+            paymentReference = 'TXN_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+            const handler = PaystackPop.setup({
+                key: PAYSTACK_PUBLIC_KEY,
+                email: email,
+                amount: 20000,
+                currency: 'KES',
+                ref: paymentReference,
+                metadata: {
+                    full_name: fullName,
+                    index_number: indexNumber,
+                    phone: phone,
+                    grades: collectedGrades
+                },
+                callback: function(response) {
+                    // Store payment details in case verification is needed
+                    localStorage.setItem('pendingPaymentRef', response.reference);
+                    localStorage.setItem('pendingPaymentEmail', email);
+                    localStorage.setItem('pendingPaymentIndex', indexNumber);
+                    localStorage.setItem('pendingPaymentName', fullName);
+                    localStorage.setItem('pendingPaymentPhone', phone);
+                    localStorage.setItem('pendingGrades', JSON.stringify(collectedGrades));
+                    
+                    document.getElementById('paymentStatus').innerHTML = '⏳ Verifying payment...';
+                    verifyPaymentWithPaystack(response.reference, email, indexNumber, phone, fullName);
+                },
+                onClose: function() {
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<i class="bi bi-lock-fill"></i> Pay KES 200 Now';
+                }
+            });
+            
+            handler.openIframe();
+        }
+
+        async function verifyPaymentWithPaystack(reference, email, indexNumber, phone, fullName) {
+            try {
+                document.getElementById('paymentStatus').innerHTML = '⏳ Verifying with Paystack...';
+                
+                // Simulate verification (in production, call your backend)
+                setTimeout(async () => {
+                    await processSuccessfulPayment(reference, email, indexNumber, phone, fullName);
+                    
+                    // Clear pending payment data
+                    localStorage.removeItem('pendingPaymentRef');
+                    localStorage.removeItem('pendingPaymentEmail');
+                    localStorage.removeItem('pendingPaymentIndex');
+                    localStorage.removeItem('pendingPaymentName');
+                    localStorage.removeItem('pendingPaymentPhone');
+                    localStorage.removeItem('pendingGrades');
+                    
+                    document.getElementById('paymentStatus').innerHTML = '';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Verification error:', error);
+                document.getElementById('paymentStatus').innerHTML = '❌ Verification failed. Contact support.';
+            }
+        }
+
+        // NEW: Function to send email using EmailJS
+        async function sendResultsEmail(email, fullName, indexNumber, results) {
+            const templateParams = {
+                to_email: email,
+                to_name: fullName,
+                from_name: 'KUCCPS Course Checker',
+                mean_grade: collectedGrades.meanGrade || 'Not calculated',
+                index_number: indexNumber,
+                results_summary: results,
+                reply_to: 'kuccpscoursequeries@gmail.com'
+            };
+
+            try {
+                const response = await emailjs.send('service_ufnfstc', 'template_h0uyc6s', templateParams);
+                console.log('Email sent successfully!', response);
+                return true;
+            } catch (error) {
+                console.error('Email failed to send:', error);
+                return false;
+            }
+        }
+
+        async function processSuccessfulPayment(reference, email, indexNumber, phone, fullName) {
+            try {
+                document.getElementById('paymentStatus').innerHTML = '⏳ Saving your results...';
+                
+                const matches = findMatchingCourses(collectedGrades, 'degree');
+                
+                if (typeof paymentVerification !== 'undefined') {
+                    // Save transaction
+                    paymentVerification.savePaymentWithResults(indexNumber, email, phone, collectedGrades, JSON.stringify(matches), reference);
+                    
+                    document.getElementById('paymentStatus').innerHTML = '⏳ Sending email with results...';
+                    
+                    // Format results for email
+                    let resultsSummary = '';
+                    if (matches && matches.length > 0) {
+                        matches.forEach(match => {
+                            if (match.courses) {
+                                match.courses.forEach(course => {
+                                    const institutions = course.institutions ? course.institutions.join(', ') : 'Various institutions';
+                                    resultsSummary += `${course.name} - ${institutions}\n`;
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Send email
+                    const emailSent = await sendResultsEmail(email, fullName, indexNumber, resultsSummary);
+                    
+                    if (emailSent) {
+                        showSuccess('✅ Payment successful! Results have been sent to your email.');
+                    } else {
+                        showSuccess('✅ Payment successful! But email may take a few minutes. Check your spam folder.');
+                    }
+                }
+                
+                closePaymentModal();
+                displayResults();
+                document.getElementById('existingPaymentBanner').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Payment successful! But there was an error. Please use "Already Paid" to access results.');
+                closePaymentModal();
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('paymentModal');
+            if (event.target === modal) {
+                closePaymentModal();
+            }
+        }
+    </script>
+</body>
+</html>

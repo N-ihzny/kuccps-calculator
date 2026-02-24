@@ -1,0 +1,433 @@
+/* =====================================================
+   RESPONSIVE STYLESHEET
+   Mobile-First Responsive Design - CORRECTED
+   ===================================================== */
+
+/* Extra small devices (phones, 320px and up) */
+@media (min-width: 320px) {
+  .container {
+    padding: 0 1rem;
+  }
+
+  /* Navigation */
+  .desktop-nav {
+    display: none;
+  }
+
+  .navbar-user {
+    display: none;
+  }
+
+  .mobile-bottom-nav {
+    display: block;
+  }
+
+  .mobile-payment-btn {
+    display: block;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    min-height: 60vh;
+    padding: 2rem 1rem;
+  }
+
+  .app-name {
+    font-size: 2rem;
+  }
+
+  .app-tagline {
+    font-size: 1rem;
+  }
+
+  .logo-main {
+    width: 80px;
+    height: 80px;
+  }
+
+  .logo-main i {
+    font-size: 2.5rem;
+  }
+
+  /* Stats Section */
+  .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
+    margin-top: 2rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  /* Action Cards */
+  .main-action-container {
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .action-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .main-buttons-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .main-btn-card {
+    padding: 1.5rem;
+  }
+
+  .btn-title {
+    font-size: 1.25rem;
+  }
+
+  /* Features Section */
+  .features-section {
+    margin: 3rem auto;
+    padding: 0 1rem;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem;
+  }
+
+  .feature-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .feature-icon i {
+    font-size: 2rem;
+  }
+
+  /* Payment Section */
+  .payment-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .payment-title {
+    font-size: 1.5rem;
+  }
+
+  .payment-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 2rem 1rem;
+  }
+
+  .footer h3 {
+    font-size: 1.5rem;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Floating Elements */
+  .floating-notifications {
+    bottom: 5rem;
+    right: 1rem;
+  }
+
+  .notification-floating-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .floating-notification-dropdown {
+    width: 280px;
+    right: -10px;
+  }
+
+  /* Modals */
+  .modal-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .chat-body {
+    max-height: 400px;
+  }
+}
+
+/* Small devices (phones, 480px and up) */
+@media (min-width: 480px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+
+  .app-name {
+    font-size: 2.5rem;
+  }
+
+  .stats-section {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .footer-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .floating-notification-dropdown {
+    width: 320px;
+  }
+}
+
+/* Medium devices (tablets, 640px and up) */
+@media (min-width: 640px) {
+  .main-buttons-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mobile-bottom-nav .mobile-nav-container {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Large devices (desktops, 768px and up) */
+@media (min-width: 768px) {
+  .desktop-nav {
+    display: flex;
+  }
+
+  .navbar-user {
+    display: flex;
+  }
+
+  .mobile-bottom-nav {
+    display: none;
+  }
+
+  .mobile-payment-btn {
+    display: none;
+  }
+
+  .app-name {
+    font-size: 3rem;
+  }
+
+  .app-tagline {
+    font-size: 1.25rem;
+  }
+
+  .logo-main {
+    width: 100px;
+    height: 100px;
+  }
+
+  .stats-section {
+    padding: 1.5rem;
+  }
+
+  .main-buttons-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .payment-section {
+    flex-direction: row;
+    text-align: left;
+  }
+}
+
+/* Extra large devices (desktops, 1024px and up) */
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+
+  .app-name {
+    font-size: 4rem;
+  }
+
+  .app-tagline {
+    font-size: 1.5rem;
+  }
+
+  .logo-main {
+    width: 120px;
+    height: 120px;
+  }
+
+  .stats-section {
+    padding: 2rem;
+  }
+
+  .main-buttons-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .features-grid {
+    gap: 1.5rem;
+  }
+
+  .floating-notifications {
+    bottom: 2rem;
+    right: 2rem;
+  }
+}
+
+/* Ultra-wide devices (1440px and up) */
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1400px;
+  }
+
+  .main-buttons-grid {
+    gap: 2rem;
+  }
+}
+
+/* Medium devices (tablets, 768px and down) - For grid overrides */
+@media (max-width: 1024px) {
+  .grid-cols-4 { 
+    grid-template-columns: repeat(3, 1fr); 
+  }
+}
+
+@media (max-width: 768px) {
+  html { 
+    font-size: 14px; 
+  }
+  
+  .container { 
+    max-width: 100%; 
+  }
+  
+  h1 { 
+    font-size: 2rem; 
+  }
+  
+  h2 { 
+    font-size: 1.75rem; 
+  }
+  
+  .grid-cols-3, .grid-cols-4 { 
+    grid-template-columns: repeat(2, 1fr); 
+  }
+}
+
+@media (max-width: 640px) {
+  .grid-cols-2, .grid-cols-3, .grid-cols-4 { 
+    grid-template-columns: 1fr; 
+  }
+  
+  .modal-container { 
+    margin: 1rem; 
+  }
+}
+
+/* Landscape orientation */
+@media (orientation: landscape) and (max-height: 600px) {
+  .hero-section {
+    min-height: 100vh;
+    padding: 3rem 1rem;
+  }
+
+  .modal-container {
+    max-height: 80vh;
+  }
+
+  .mobile-bottom-nav {
+    padding: 0.25rem;
+  }
+}
+
+/* High-DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .logo-main,
+  .feature-icon,
+  .stat-card {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gray-50: #1a1a1a;
+    --gray-100: #2d2d2d;
+    --gray-200: #404040;
+    --gray-300: #666666;
+    --gray-400: #808080;
+    --gray-500: #999999;
+    --gray-600: #b3b3b3;
+    --gray-700: #cccccc;
+    --gray-800: #e6e6e6;
+    --gray-900: #ffffff;
+  }
+
+  body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+
+  .card,
+  .modal-container,
+  .notification,
+  .form-control {
+    background: var(--gray-100);
+    color: var(--gray-800);
+  }
+
+  .glass-effect {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Print styles - CORRECTED */
+@media print {
+  .navbar,
+  .mobile-bottom-nav,
+  .floating-notifications,
+  .footer {
+    display: none !important;
+  }
+
+  .hero-section {
+    min-height: auto;
+    padding: 1rem;
+  }
+
+  .card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000000;
+  }
+}

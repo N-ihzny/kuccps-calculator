@@ -1,0 +1,57 @@
+-- Seed: All Kenyan Universities (with INSERT IGNORE)
+USE kuccps_calculator;
+
+INSERT IGNORE INTO institutions (name, code, type, category, location, county, established_year) VALUES
+-- Public Universities
+('University of Nairobi', 'UON', 'university', 'public', 'Nairobi', 'Nairobi', 1970),
+('Kenyatta University', 'KU', 'university', 'public', 'Nairobi', 'Nairobi', 1985),
+('Moi University', 'MU', 'university', 'public', 'Eldoret', 'Uasin Gishu', 1984),
+('Jomo Kenyatta University of Agriculture and Technology', 'JKUAT', 'university', 'public', 'Juja', 'Kiambu', 1994),
+('Egerton University', 'EGU', 'university', 'public', 'Njoro', 'Nakuru', 1987),
+('Maseno University', 'MSU', 'university', 'public', 'Maseno', 'Kisumu', 1991),
+('Masinde Muliro University of Science and Technology', 'MMUST', 'university', 'public', 'Kakamega', 'Kakamega', 2007),
+('Technical University of Kenya', 'TUK', 'university', 'public', 'Nairobi', 'Nairobi', 2013),
+('Technical University of Mombasa', 'TUM', 'university', 'public', 'Mombasa', 'Mombasa', 2013),
+('Dedan Kimathi University of Technology', 'DKUT', 'university', 'public', 'Nyeri', 'Nyeri', 2012),
+('Chuka University', 'CUK', 'university', 'public', 'Chuka', 'Tharaka Nithi', 2013),
+('South Eastern Kenya University', 'SEKU', 'university', 'public', 'Kitui', 'Kitui', 2013),
+('Meru University of Science and Technology', 'MUST', 'university', 'public', 'Meru', 'Meru', 2013),
+('Kisii University', 'KSU', 'university', 'public', 'Kisii', 'Kisii', 2013),
+('University of Eldoret', 'UOE', 'university', 'public', 'Eldoret', 'Uasin Gishu', 2013),
+('Maasai Mara University', 'MMU', 'university', 'public', 'Narok', 'Narok', 2013),
+('Laikipia University', 'LAIKI', 'university', 'public', 'Nyahururu', 'Laikipia', 2013),
+('University of Kabianga', 'UOK', 'university', 'public', 'Kericho', 'Kericho', 2013),
+('Muranga University of Technology', 'MUT', 'university', 'public', 'Muranga', 'Muranga', 2013),
+('Multimedia University of Kenya', 'MMU-KE', 'university', 'public', 'Nairobi', 'Nairobi', 2013),
+('Rongo University', 'RU', 'university', 'public', 'Rongo', 'Migori', 2013),
+('Taita Taveta University', 'TTU', 'university', 'public', 'Voi', 'Taita Taveta', 2013),
+('Garissa University', 'GUA', 'university', 'public', 'Garissa', 'Garissa', 2013),
+('Kirinyaga University', 'KYU', 'university', 'public', 'Kerugoya', 'Kirinyaga', 2013),
+('Machakos University', 'MKS', 'university', 'public', 'Machakos', 'Machakos', 2013),
+('Cooperative University of Kenya', 'CUK', 'university', 'public', 'Nairobi', 'Nairobi', 2013),
+('University of Embu', 'UOEM', 'university', 'public', 'Embu', 'Embu', 2013),
+('Kibabii University', 'KIBU', 'university', 'public', 'Bungoma', 'Bungoma', 2013),
+
+-- Private Universities
+('Strathmore University', 'STRATH', 'university', 'private', 'Nairobi', 'Nairobi', 2002),
+('United States International University Africa', 'USIU', 'university', 'private', 'Nairobi', 'Nairobi', 1969),
+('Catholic University of Eastern Africa', 'CUEA', 'university', 'private', 'Nairobi', 'Nairobi', 1984),
+('Daystar University', 'DAY', 'university', 'private', 'Nairobi', 'Nairobi', 1974),
+('Africa Nazarene University', 'ANU', 'university', 'private', 'Nairobi', 'Nairobi', 1994),
+('Mount Kenya University', 'MKU', 'university', 'private', 'Thika', 'Kiambu', 2006),
+('KCA University', 'KCA', 'university', 'private', 'Nairobi', 'Nairobi', 2007),
+('Kabarak University', 'KAB', 'university', 'private', 'Nakuru', 'Nakuru', 2001),
+('Scott Christian University', 'SCU', 'university', 'private', 'Machakos', 'Machakos', 1997),
+('Pan Africa Christian University', 'PAC', 'university', 'private', 'Nairobi', 'Nairobi', 1978),
+('St. Paul\'s University', 'SPU', 'university', 'private', 'Limuru', 'Kiambu', 1903),
+('Presbyterian University of East Africa', 'PUEA', 'university', 'private', 'Kikuyu', 'Kiambu', 2007),
+('Great Lakes University of Kisumu', 'GLUK', 'university', 'private', 'Kisumu', 'Kisumu', 2006),
+('Kenya Methodist University', 'KEMU', 'university', 'private', 'Meru', 'Meru', 1997),
+('Adventist University of Africa', 'AUA', 'university', 'private', 'Nairobi', 'Nairobi', 2005),
+('University of Eastern Africa, Baraton', 'UEAB', 'university', 'private', 'Eldoret', 'Uasin Gishu', 1980),
+('Riara University', 'RIARA', 'university', 'private', 'Nairobi', 'Nairobi', 2012),
+('Zetech University', 'ZETECH', 'university', 'private', 'Nairobi', 'Nairobi', 2014),
+('Kiriri Women\'s University of Science and Technology', 'KWUST', 'university', 'private', 'Nairobi', 'Nairobi', 2002),
+('Management University of Africa', 'MUA', 'university', 'private', 'Nairobi', 'Nairobi', 2011);
+
+SELECT CONCAT('Universities seeded successfully. Total: ', COUNT(*)) as result FROM institutions WHERE type = 'university';

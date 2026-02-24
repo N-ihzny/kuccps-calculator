@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-KDK6HDVX');</script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BB3KSJB812"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-BB3KSJB812');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>KUCCPS Course Checker - Verify Payment</title>
+    
+    <!-- CSS Links -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =====================================================
+           MODERN STYLING - VERIFY PAYMENT
+           ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --secondary: #2563eb;
+            --accent: #8b5cf6;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-1: linear-gradient(135deg, #10b981, #059669);
+            --gradient-2: linear-gradient(135deg, #2563eb, #7c3aed);
+            --gradient-3: linear-gradient(135deg, #f59e0b, #f97316);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 40px -8px rgba(0,0,0,0.2);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .verification-container {
+            max-width: 600px;
+            width: 100%;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .verification-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .verification-header {
+            background: var(--gradient-1);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .verification-header i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .verification-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .verification-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .verification-body {
+            padding: 40px;
+        }
+
+        .info-box {
+            background: rgba(16,185,129,0.1);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .info-box i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .info-box p {
+            color: var(--dark);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group label .required {
+            color: var(--danger);
+            margin-left: 3px;
+        }
+
+        .form-group label i {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16,185,129,0.1);
+        }
+
+        .form-control.error {
+            border-color: var(--danger);
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .verify-btn.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .verify-btn.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,0.5);
+        }
+
+        .verification-status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            display: none;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .verification-status.success {
+            display: block;
+            background: rgba(16,185,129,0.1);
+            color: var(--success);
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+
+        .verification-status.error {
+            display: block;
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+
+        .transaction-details {
+            background: rgba(255,255,255,0.8);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            margin: 20px 0;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .transaction-details.show {
+            display: block;
+        }
+
+        .transaction-details h4 {
+            color: var(--success);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .transaction-value {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .program-selector {
+            margin-top: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .program-selector.show {
+            display: block;
+        }
+
+        .program-selector select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .program-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--gradient-2);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(37,99,235,0.5);
+        }
+
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .verification-header h1 {
+                font-size: 2rem;
+            }
+            
+            .verification-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <div class="verification-card">
+            <div class="verification-header">
+                <i class="bi bi-check-circle-fill"></i>
+                <h1>Verify Your Payment</h1>
+                <p>Enter the details you used during payment to regain access</p>
+            </div>
+            
+            <div class="verification-body">
+                <div class="info-box">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <p><strong>Already paid?</strong> Enter your KCSE Index Number, Email, and Phone Number below. If your payment is found, you'll be able to access the calculator again without paying.</p>
+                </div>
+
+                <form id="verificationForm" onsubmit="event.preventDefault();">
+                    <div class="form-group">
+                        <label for="indexNumber">
+                            <i class="bi bi-file-text"></i> KCSE Index Number <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="indexNumber" placeholder="e.g., 12345678901" maxlength="11" onkeyup="checkFormValidity()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="bi bi-envelope-fill"></i> Email Address <span class="required">*</span>
+                        </label>
+                        <input type="email" class="form-control" id="email" placeholder="your@email.com" onkeyup="checkFormValidity()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">
+                            <i class="bi bi-phone-fill"></i> Phone Number <span class="required">*</span>
+                        </label>
+                        <input type="tel" class="form-control" id="phone" placeholder="e.g., 0712345678" onkeyup="checkFormValidity()">
+                    </div>
+
+                    <button type="button" id="verifyBtn" class="verify-btn" onclick="verifyPayment()" disabled>
+                        <i class="bi bi-search"></i> Check Verification
+                    </button>
+                </form>
+
+                <div id="verificationStatus" class="verification-status"></div>
+
+                <div id="transactionDetails" class="transaction-details">
+                    <h4><i class="bi bi-check-circle-fill"></i> Payment Found!</h4>
+                    <div class="transaction-item">
+                        <span class="transaction-label">Transaction ID:</span>
+                        <span class="transaction-value" id="transId">-</span>
+                    </div>
+                    <div class="transaction-item">
+                        <span class="transaction-label">Date Paid:</span>
+                        <span class="transaction-value" id="transDate">-</span>
+                    </div>
+                    <div class="transaction-item">
+                        <span class="transaction-label">Amount:</span>
+                        <span class="transaction-value">KES 200</span>
+                    </div>
+                    <div class="transaction-item">
+                        <span class="transaction-label">Status:</span>
+                        <span class="transaction-value" style="color: var(--success);">✓ Verified</span>
+                    </div>
+                </div>
+
+                <div id="programSelector" class="program-selector">
+                    <h4 style="margin-bottom: 15px; color: var(--dark);">Select Program to Access</h4>
+                    <select id="programType">
+                        <option value="">Choose a program...</option>
+                        <option value="degree">Degree Programs</option>
+                        <option value="diploma">Diploma Programs</option>
+                        <option value="certificate">Certificate Programs</option>
+                        <option value="kmtc">KMTC Programs</option>
+                    </select>
+                    <button class="continue-btn" onclick="continueToProgram()">
+                        <i class="bi bi-arrow-right-circle"></i> Continue to Program
+                    </button>
+                </div>
+
+                <div class="footer">
+                    <a href='/'><i class="bi bi-arrow-left"></i> Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTransaction = null;
+
+        // Check form validity to enable/disable verify button
+        function checkFormValidity() {
+            const indexNumber = document.getElementById('indexNumber').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const verifyBtn = document.getElementById('verifyBtn');
+            
+            const isIndexValid = /^\d{11}$/.test(indexNumber);
+            const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            const isPhoneValid = phone.length >= 10;
+            
+            if (isIndexValid && isEmailValid && isPhoneValid) {
+                verifyBtn.disabled = false;
+                verifyBtn.classList.add('active');
+            } else {
+                verifyBtn.disabled = true;
+                verifyBtn.classList.remove('active');
+            }
+        }
+
+        // Verify payment against transaction history
+        function verifyPayment() {
+            const indexNumber = document.getElementById('indexNumber').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const verifyBtn = document.getElementById('verifyBtn');
+            
+            // Show loading
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<span class="loader"></span> Verifying...';
+            
+            setTimeout(() => {
+                try {
+                    // Get all transactions from localStorage
+                    const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
+                    
+                    // Find matching transaction
+                    const matchingTransaction = transactions.find(t => 
+                        t.indexNumber === indexNumber && 
+                        t.email === email &&
+                        t.status === 'completed'
+                    );
+                    
+                    if (matchingTransaction) {
+                        // Payment found!
+                        currentTransaction = matchingTransaction;
+                        
+                        showStatus('✅ Payment verified successfully! You can now access your results.', 'success');
+                        
+                        // Display transaction details
+                        document.getElementById('transId').textContent = matchingTransaction.reference || 'N/A';
+                        document.getElementById('transDate').textContent = matchingTransaction.date ? 
+                            new Date(matchingTransaction.date).toLocaleString() : 'N/A';
+                        
+                        // Show transaction details and program selector
+                        document.getElementById('transactionDetails').classList.add('show');
+                        document.getElementById('programSelector').classList.add('show');
+                        
+                        // Save verification status
+                        localStorage.setItem('paymentVerified', 'true');
+                        localStorage.setItem('paymentEmail', email);
+                        localStorage.setItem('paymentIndex', indexNumber);
+                        localStorage.setItem('paymentPhone', phone);
+                        localStorage.setItem('paymentReference', matchingTransaction.reference);
+                        
+                        // Scroll to program selector
+                        document.getElementById('programSelector').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        // No payment found
+                        showStatus('❌ No payment found with these details. Please check and try again.', 'error');
+                        
+                        document.getElementById('transactionDetails').classList.remove('show');
+                        document.getElementById('programSelector').classList.remove('show');
+                    }
+                } catch (error) {
+                    console.error('Verification error:', error);
+                    showStatus('❌ Error verifying payment. Please try again.', 'error');
+                }
+                
+                // Reset button
+                verifyBtn.disabled = false;
+                verifyBtn.classList.add('active');
+                verifyBtn.innerHTML = '<i class="bi bi-search"></i> Check Verification';
+                
+            }, 1500);
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('verificationStatus');
+            statusDiv.className = 'verification-status ' + type;
+            statusDiv.innerHTML = message;
+        }
+
+        // Continue to selected program
+        function continueToProgram() {
+            const programType = document.getElementById('programType').value;
+            
+            if (!programType) {
+                alert('Please select a program type');
+                return;
+            }
+            
+            const urls = {
+                'degree': 'degree-calculator.html',
+                'diploma': 'diploma.html',
+                'certificate': 'certificate.html',
+                'kmtc': 'kmtc.html'
+            };
+            
+            window.location.href = urls[programType];
+        }
+
+        // Load saved data if available
+        function loadSavedData() {
+            try {
+                const index = localStorage.getItem('paymentIndex');
+                const email = localStorage.getItem('paymentEmail');
+                const phone = localStorage.getItem('paymentPhone');
+                
+                if (index) document.getElementById('indexNumber').value = index;
+                if (email) document.getElementById('email').value = email;
+                if (phone) document.getElementById('phone').value = phone;
+                
+                checkFormValidity();
+            } catch (e) {
+                console.log('No saved user data');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            
+            // Check if there are any transactions in localStorage
+            const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
+            console.log('Total transactions in system:', transactions.length);
+        });
+
+        // For demo purposes - function to create sample transactions
+        window.addSampleTransaction = function(index, email, phone) {
+            const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
+            transactions.push({
+                indexNumber: index,
+                email: email,
+                phone: phone,
+                reference: 'TXN_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                date: new Date().toISOString(),
+                status: 'completed',
+                amount: 200
+            });
+            localStorage.setItem('kuccps_transactions', JSON.stringify(transactions));
+            alert('Sample transaction added for ' + email);
+            location.reload();
+        }
+    </script>
+</body>
+</html>
