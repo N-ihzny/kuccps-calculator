@@ -198,7 +198,7 @@
             box-shadow: 0 10px 25px rgba(59,130,246,0.3);
         }
 
-        /* Payment Modal */
+        /* Payment Modal - Your Exact Design */
         .payment-modal {
             display: none;
             position: fixed;
@@ -587,7 +587,7 @@
                 <i class="bi bi-arrow-left"></i> Back
             </div>
             
-            <!-- Already Paid button only -->
+            <!-- Only Already Paid button -->
             <a class='payment-btn' href='alreadypaid.html'>
                 <i class="bi bi-question-circle-fill"></i> Already Paid?
             </a>
@@ -604,7 +604,6 @@
         </div>
 
         <form id="gradeForm">
-            <!-- Main KCSE Grade -->
             <div class="form-section">
                 <h2 class="section-title">Main KCSE Grade</h2>
                 <div class="main-grade-select">
@@ -627,7 +626,6 @@
                 </div>
             </div>
 
-            <!-- Core Subjects -->
             <div class="form-section">
                 <h2 class="section-title">Core Subjects</h2>
                 <div class="subject-grid">
@@ -664,7 +662,6 @@
                 </div>
             </div>
 
-            <!-- Sciences -->
             <div class="form-section">
                 <h2 class="section-title">Sciences</h2>
                 <div class="subject-grid">
@@ -701,7 +698,6 @@
                 </div>
             </div>
 
-            <!-- Humanities -->
             <div class="form-section">
                 <h2 class="section-title">Humanities</h2>
                 <div class="subject-grid">
@@ -778,7 +774,7 @@
         </div>
     </main>
 
-    <!-- Payment Modal -->
+    <!-- Payment Modal - Your Exact Design -->
     <div id="paymentModal" class="payment-modal">
         <div class="payment-modal-content">
             <h3>💰 Complete Payment</h3>
@@ -884,7 +880,17 @@
                 CRE: document.getElementById('cre').value,
                 Agriculture: document.getElementById('agriculture').value,
                 Computer: document.getElementById('computer').value,
-                Business: document.getElementById('business').value
+                Business: document.getElementById('business').value,
+                Art: document.getElementById('art')?.value || '',
+                Woodwork: document.getElementById('woodwork')?.value || '',
+                Homescience: document.getElementById('homescience')?.value || '',
+                Music: document.getElementById('music')?.value || '',
+                Building: document.getElementById('building')?.value || '',
+                Electricity: document.getElementById('electricity')?.value || '',
+                Metalwork: document.getElementById('metalwork')?.value || '',
+                French: document.getElementById('french')?.value || '',
+                German: document.getElementById('german')?.value || '',
+                Aviation: document.getElementById('aviation')?.value || ''
             };
             
             if (!collectedGrades.meanGrade) {
@@ -903,7 +909,7 @@
             // Check payment status
             if (user.paymentStatus) {
                 // Already paid - calculate directly
-                await fetchAndDisplayResults();
+                await fetchAndDisplayResults('degree');
             } else {
                 // Show payment modal
                 document.getElementById('paymentModal').style.display = 'flex';
@@ -911,7 +917,7 @@
         }
 
         // Fetch and display results from API
-        async function fetchAndDisplayResults() {
+        async function fetchAndDisplayResults(programType = 'degree') {
             const spinner = document.getElementById('resultsSpinner');
             const resultsDiv = document.getElementById('resultsSection');
             const resultsContent = document.getElementById('resultsContent');
@@ -925,7 +931,7 @@
                 const user = Utils.getStorage('currentUser');
                 
                 // Call API to calculate eligibility
-                const response = await API.calculateEligibility(user.id, 'degree', collectedGrades);
+                const response = await API.calculateEligibility(user.id, programType, collectedGrades);
                 
                 spinner.style.display = 'none';
                 
@@ -936,11 +942,11 @@
                     resultsSummary.innerHTML = `
                         <div class="summary-item">
                             <div class="label">Mean Grade</div>
-                            <div class="value">${data.summary.meanGrade || 'N/A'}</div>
+                            <div class="value">${data.summary?.meanGrade || 'N/A'}</div>
                         </div>
                         <div class="summary-item">
                             <div class="label">Total Points</div>
-                            <div class="value">${data.summary.totalPoints || 'N/A'}</div>
+                            <div class="value">${data.summary?.totalPoints || 'N/A'}</div>
                         </div>
                         <div class="summary-item">
                             <div class="label">Eligible Courses</div>
@@ -1112,7 +1118,8 @@
                     fullName,
                     phone,
                     indexNumber,
-                    grades: collectedGrades
+                    grades: collectedGrades,
+                    programType: 'degree'
                 });
                 
                 if (response && response.success) {
@@ -1139,7 +1146,7 @@
                                 
                                 setTimeout(() => {
                                     closePaymentModal();
-                                    fetchAndDisplayResults();
+                                    fetchAndDisplayResults('degree');
                                 }, 2000);
                             } else {
                                 throw new Error('Payment verification failed');
