@@ -15,17 +15,11 @@ class GradeHandler {
     this.init();
   }
 
-  // =====================================================
-  // Initialize
-  // =====================================================
   init() {
     // Load subjects from API if available
     this.loadSubjectsFromAPI();
   }
 
-  // =====================================================
-  // Default Data (fallback if CONFIG not available)
-  // =====================================================
   getDefaultSubjects() {
     return [
       { code: 'ENG', name: 'English', group: 1, compulsory: true },
@@ -51,9 +45,6 @@ class GradeHandler {
     };
   }
 
-  // =====================================================
-  // Load Subjects from API
-  // =====================================================
   async loadSubjectsFromAPI() {
     try {
       if (typeof API !== 'undefined' && API.getSubjects) {
@@ -67,9 +58,6 @@ class GradeHandler {
     }
   }
 
-  // =====================================================
-  // Load Grade Entry Form
-  // =====================================================
   async loadGradeEntry(savedGrades = null) {
     const container = document.getElementById('subjects-container');
     if (!container) return;
@@ -88,17 +76,14 @@ class GradeHandler {
     
     let html = headerHtml;
     
-    // If we have saved grades, load them
     if (savedGrades && savedGrades.length > 0) {
       for (let i = 0; i < savedGrades.length; i++) {
         html += this.createSubjectRow(i, savedGrades[i].subject, savedGrades[i].grade);
       }
-      // Add remaining empty rows up to minSubjects
       for (let i = savedGrades.length; i < this.minSubjects; i++) {
         html += this.createSubjectRow(i);
       }
     } else {
-      // Create empty rows
       for (let i = 0; i < this.minSubjects; i++) {
         html += this.createSubjectRow(i);
       }
@@ -113,30 +98,20 @@ class GradeHandler {
           <i class="bi bi-dash-circle"></i> Remove Subject
         </button>
       </div>
-      <div class="mt-3">
-        <small class="text-muted">
-          <i class="bi bi-info-circle"></i> 
-          Select your subjects and grades. The system will automatically calculate your mean grade.
-        </small>
-      </div>
     `;
 
     container.innerHTML = html;
     this.attachEventListeners();
     this.updateSubjectCount();
     
-    // Trigger validation if we have saved grades
     if (savedGrades && savedGrades.length > 0) {
       setTimeout(() => this.validateAndCalculate(), 100);
     }
   }
 
-  // =====================================================
-  // Create Subject Row
-  // =====================================================
   createSubjectRow(index, selectedSubject = '', selectedGrade = '') {
     return `
-      <div class="subject-row mb-3 animate-slide-in" id="subject-row-${index}" style="animation-delay: ${index * 0.1}s">
+      <div class="subject-row mb-3 animate-slide-in" id="subject-row-${index}">
         <div class="row g-2">
           <div class="col-md-5">
             <select class="form-select subject-select" id="subject-${index}" data-index="${index}" required>
@@ -160,11 +135,7 @@ class GradeHandler {
     `;
   }
 
-  // =====================================================
-  // Get Options
-  // =====================================================
   getSubjectOptions(selected = '') {
-    // Group subjects by group
     const groupedSubjects = {};
     this.subjects.forEach(s => {
       const group = s.group || 1;
@@ -176,7 +147,6 @@ class GradeHandler {
 
     let options = '';
     
-    // Add optgroups for better organization
     const groupNames = {
       1: '📚 Compulsory Subjects',
       2: '🔬 Sciences',
@@ -205,9 +175,6 @@ class GradeHandler {
     ).join('');
   }
 
-  // =====================================================
-  // Event Listeners
-  // =====================================================
   attachEventListeners() {
     const addBtn = document.getElementById('add-subject-btn');
     const removeBtn = document.getElementById('remove-subject-btn');
@@ -220,16 +187,14 @@ class GradeHandler {
       removeBtn.addEventListener('click', () => this.removeLastSubjectRow());
     }
     
-    // Attach listeners to all existing selects
     for (let i = 0; i < this.maxSubjects; i++) {
       const subjectSelect = document.getElementById(`subject-${i}`);
       const gradeSelect = document.getElementById(`grade-${i}`);
       
       if (subjectSelect) {
-        subjectSelect.addEventListener('change', (e) => {
+        subjectSelect.addEventListener('change', () => {
           this.validateAndCalculate();
           this.updateRemoveButtonsVisibility();
-          this.highlightSelectedSubject(e.target);
         });
       }
       
@@ -242,29 +207,6 @@ class GradeHandler {
     }
   }
 
-  // =====================================================
-  // Highlight Selected Subject
-  // =====================================================
-  highlightSelectedSubject(select) {
-    // Remove highlight from all options
-    document.querySelectorAll('.subject-select option').forEach(opt => {
-      opt.style.fontWeight = 'normal';
-    });
-    
-    // Highlight selected options
-    document.querySelectorAll('.subject-select').forEach(sel => {
-      if (sel.value) {
-        const option = sel.querySelector(`option[value="${sel.value}"]`);
-        if (option) {
-          option.style.fontWeight = 'bold';
-        }
-      }
-    });
-  }
-
-  // =====================================================
-  // Subject Row Management
-  // =====================================================
   addSubjectRow() {
     const currentRows = document.querySelectorAll('.subject-row').length;
     if (currentRows < this.maxSubjects) {
@@ -277,7 +219,6 @@ class GradeHandler {
       newSubjectSelect.addEventListener('change', () => {
         this.validateAndCalculate();
         this.updateRemoveButtonsVisibility();
-        this.highlightSelectedSubject(newSubjectSelect);
       });
       
       newGradeSelect.addEventListener('change', () => {
@@ -287,28 +228,17 @@ class GradeHandler {
       
       this.updateSubjectCount();
       this.updateRemoveButtonsVisibility();
-      
-      // Animate new row
-      const newRow = document.getElementById(`subject-row-${currentRows}`);
-      if (newRow) {
-        newRow.classList.add('animate-slide-in');
-      }
     }
   }
 
   removeLastSubjectRow() {
     const rows = document.querySelectorAll('.subject-row');
     if (rows.length > this.minSubjects) {
-      const lastRow = rows[rows.length - 1];
-      lastRow.classList.add('animate-slide-out');
-      
-      setTimeout(() => {
-        lastRow.remove();
-        this.reindexRows();
-        this.updateSubjectCount();
-        this.updateRemoveButtonsVisibility();
-        this.validateAndCalculate();
-      }, 300);
+      rows[rows.length - 1].remove();
+      this.reindexRows();
+      this.updateSubjectCount();
+      this.updateRemoveButtonsVisibility();
+      this.validateAndCalculate();
     }
   }
 
@@ -317,15 +247,11 @@ class GradeHandler {
     if (rows.length > this.minSubjects) {
       const rowToRemove = document.getElementById(`subject-row-${index}`);
       if (rowToRemove) {
-        rowToRemove.classList.add('animate-slide-out');
-        
-        setTimeout(() => {
-          rowToRemove.remove();
-          this.reindexRows();
-          this.updateSubjectCount();
-          this.updateRemoveButtonsVisibility();
-          this.validateAndCalculate();
-        }, 300);
+        rowToRemove.remove();
+        this.reindexRows();
+        this.updateSubjectCount();
+        this.updateRemoveButtonsVisibility();
+        this.validateAndCalculate();
       }
     }
   }
@@ -346,7 +272,6 @@ class GradeHandler {
       }
       row.id = `subject-row-${newIndex}`;
       
-      // Update remove button onclick
       const removeBtn = row.querySelector('.remove-row-btn');
       if (removeBtn) {
         removeBtn.setAttribute('onclick', `gradeHandler.removeSubjectRow(${newIndex})`);
@@ -354,9 +279,6 @@ class GradeHandler {
     });
   }
 
-  // =====================================================
-  // Validation and Calculation
-  // =====================================================
   validateAndCalculate() {
     const grades = [];
     let totalPoints = 0;
@@ -372,7 +294,6 @@ class GradeHandler {
       const subject = subjectSelect?.value;
       const grade = gradeSelect?.value;
       
-      // Clear validation states
       if (subjectSelect) subjectSelect.classList.remove('is-invalid');
       if (gradeSelect) gradeSelect.classList.remove('is-invalid');
       
@@ -388,7 +309,6 @@ class GradeHandler {
           subjectsEntered++;
         }
       } else if (subject || grade) {
-        // Incomplete row
         if (!subject && grade) {
           if (subjectSelect) subjectSelect.classList.add('is-invalid');
         }
@@ -405,7 +325,6 @@ class GradeHandler {
     if (subjectsEntered >= this.minSubjects && subjectsEntered <= this.maxSubjects && errors.length === 0) {
       calculateBtn.disabled = false;
       
-      // Calculate based on best 7 subjects
       const best7Grades = this.getBestSubjects(grades, 7);
       const best7Total = best7Grades.reduce((sum, g) => sum + g.points, 0);
       const meanGrade = this.calculateMeanGrade(best7Total);
@@ -423,10 +342,7 @@ class GradeHandler {
         }
       }
       
-      // Store normalized grades
       this.studentGrades = this.normalizeGrades(grades);
-      
-      // Save to session storage
       this.saveGradesToSession(this.studentGrades);
       
     } else {
@@ -443,24 +359,17 @@ class GradeHandler {
       }
     }
     
-    // Show any errors as notifications
     if (errors.length > 0 && typeof Utils !== 'undefined' && Utils.showNotification) {
       Utils.showNotification(errors[0], 'warning');
     }
   }
 
-  // =====================================================
-  // Get Best Subjects
-  // =====================================================
   getBestSubjects(grades, count = 7) {
     return [...grades]
       .sort((a, b) => b.points - a.points)
       .slice(0, count);
   }
 
-  // =====================================================
-  // Calculate Mean Grade from Points
-  // =====================================================
   calculateMeanGrade(totalPoints) {
     const mean = totalPoints / 7;
     
@@ -478,17 +387,11 @@ class GradeHandler {
     return 'E';
   }
 
-  // =====================================================
-  // Normalize Grades (best 7, sorted)
-  // =====================================================
   normalizeGrades(grades) {
     return this.getBestSubjects(grades, 7)
       .sort((a, b) => b.points - a.points);
   }
 
-  // =====================================================
-  // Save Grades to Session Storage
-  // =====================================================
   saveGradesToSession(grades) {
     try {
       const gradesObj = {};
@@ -506,9 +409,6 @@ class GradeHandler {
     }
   }
 
-  // =====================================================
-  // Load Grades from Session
-  // =====================================================
   loadGradesFromSession() {
     try {
       let gradesObj = null;
@@ -539,9 +439,6 @@ class GradeHandler {
     return null;
   }
 
-  // =====================================================
-  // Update Methods
-  // =====================================================
   updateSubjectCount() {
     const currentRows = document.querySelectorAll('.subject-row').length;
     const countElement = document.getElementById('subject-count');
@@ -567,9 +464,6 @@ class GradeHandler {
     });
   }
 
-  // =====================================================
-  // Save Grades to API
-  // =====================================================
   async saveGrades(userId) {
     try {
       if (!userId) {
@@ -586,7 +480,6 @@ class GradeHandler {
         const response = await API.saveGrades(userId, grades);
         return response && response.success;
       } else {
-        // Fallback to local storage
         if (typeof Utils !== 'undefined' && Utils.setStorage) {
           Utils.setStorage('savedGrades', grades);
         }
@@ -601,9 +494,6 @@ class GradeHandler {
     }
   }
 
-  // =====================================================
-  // Get Grades for API (object format)
-  // =====================================================
   getGradesForAPI() {
     const gradesObj = {};
     this.studentGrades.forEach(g => {
@@ -612,16 +502,10 @@ class GradeHandler {
     return gradesObj;
   }
 
-  // =====================================================
-  // Get Current Grades (array format)
-  // =====================================================
   getGrades() {
     return this.studentGrades;
   }
 
-  // =====================================================
-  // Clear Grades
-  // =====================================================
   clearGrades() {
     this.studentGrades = [];
     if (typeof Utils !== 'undefined' && Utils.removeStorage) {
@@ -629,34 +513,7 @@ class GradeHandler {
     } else {
       sessionStorage.removeItem('currentGrades');
     }
-    
-    // Reload empty form
     this.loadGradeEntry();
-  }
-
-  // =====================================================
-  // Validate Grades Before Submission
-  // =====================================================
-  validateGradesForSubmission() {
-    const errors = [];
-    
-    if (!this.studentGrades || this.studentGrades.length < 7) {
-      errors.push('Please enter at least 7 subjects');
-    }
-    
-    // Check for duplicate subjects
-    const subjects = new Set();
-    this.studentGrades.forEach(g => {
-      if (subjects.has(g.subject)) {
-        errors.push(`Duplicate subject: ${g.subject}`);
-      }
-      subjects.add(g.subject);
-    });
-    
-    return {
-      valid: errors.length === 0,
-      errors
-    };
   }
 }
 
@@ -667,22 +524,13 @@ window.gradeHandler = gradeHandler;
 // Helper function for loading grade entry
 function loadGradeEntry() {
   if (window.gradeHandler) {
-    // Try to load saved grades
     const savedGrades = window.gradeHandler.loadGradesFromSession();
     window.gradeHandler.loadGradeEntry(savedGrades);
   }
 }
 
-// Auto-load on page load if container exists
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('subjects-container')) {
     loadGradeEntry();
   }
 });
-
-// =====================================================
-// Export for module use if needed
-// =====================================================
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = GradeHandler;
-}
