@@ -7,6 +7,13 @@
   <title>KUCCPS Course Checker - Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Our JS Files -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/AUTH.js"></script>
+  
   <style>
     * {
       margin: 0;
@@ -526,13 +533,13 @@
       </div>
     </div>
 
-    <!-- Payment Banner (shown if not paid) -->
+    <!-- Payment Banner (shown only if not paid) -->
     <div class="payment-banner" id="paymentBanner">
       <div>
         <h2>Unlock Full Access</h2>
         <p>Get personalized course recommendations and cluster point calculations for only KES 200</p>
       </div>
-      <button class="payment-btn" onclick="navigateTo('new_payment.html')">
+      <button class="payment-btn" onclick="goToPayment()">
         Pay Now <i class="bi bi-arrow-right"></i>
       </button>
     </div>
@@ -556,7 +563,7 @@
         <p>Financial aid & loans</p>
       </div>
 
-      <!-- Updated Support Card with Modal -->
+      <!-- Support Card with Modal -->
       <div class="menu-card" onclick="openSupportModal()">
         <div class="menu-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
           <i class="bi bi-headset"></i>
@@ -623,8 +630,8 @@
   </div>
 
   <script>
-    // Load user data
-    const user = JSON.parse(localStorage.getItem('currentUser'));
+    // Load user data using Utils (consistent with other pages)
+    const user = Utils.getStorage('currentUser');
     
     if (!user) {
       window.location.href = 'index.html';
@@ -645,21 +652,14 @@
       document.getElementById('paymentStatus').style.color = '#10b981';
     }
 
-    // Navigation
+    // Navigation - NO PAYMENT CHECK HERE! Users can access all pages freely
     function navigateTo(page) {
-      const user = JSON.parse(localStorage.getItem('currentUser'));
-      
-      // Check payment for program pages
-      if (page.includes('degree') || page.includes('diploma') || page.includes('certificate') || page.includes('kmtc')) {
-        if (!user.paymentStatus) {
-          if (confirm('Payment required to access this feature. Proceed to payment?')) {
-            window.location.href = 'new_payment.html';
-          }
-          return;
-        }
-      }
-      
       window.location.href = page;
+    }
+
+    // Go to payment page (not a modal/prompt)
+    function goToPayment() {
+      window.location.href = 'new_payment.html';
     }
 
     // Support Modal Functions
@@ -691,17 +691,23 @@
 
     function openCall() {
       const phone = '+254743665527';
+      // Use confirm only for call (this is acceptable)
       if (confirm(`Call ${phone}?`)) {
         window.location.href = `tel:${phone}`;
       }
       closeSupportModal();
     }
 
-    // Logout
+    // Logout using Auth system
     function logout() {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('currentUser');
-        window.location.href = 'index.html';
+      if (window.Auth) {
+        Auth.logout();
+      } else {
+        // Fallback
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem('currentUser');
+          window.location.href = 'index.html';
+        }
       }
     }
 
