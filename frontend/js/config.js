@@ -15,10 +15,9 @@ const CONFIG = {
     API_URL: (() => {
       // Check if running on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'https://kuccps-api.onrender.com/api/v1';
+        return 'http://localhost:5000/api/v1';
       }
-      // For Render deployment - replace with your actual Render backend URL
-      // After deployment, change this to: https://kuccps-api.onrender.com/api/v1
+      // For Render deployment
       return 'https://kuccps-api.onrender.com/api/v1';
     })(),
     // Backup API URL in case primary fails
@@ -226,7 +225,7 @@ const CONFIG = {
     ENVIRONMENT: window.location.hostname === 'localhost' ? 'development' : 'production',
     FRONTEND_URL: window.location.origin,
     BACKEND_URL: (() => {
-      if (window.location.hostname === 'localhost') return 'https://kuccps-api.onrender.com';
+      if (window.location.hostname === 'localhost') return 'http://localhost:5000';
       return 'https://kuccps-api.onrender.com';
     })(),
     VERSION: '2.0.0'
