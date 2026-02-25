@@ -67,9 +67,9 @@ class AuthSystem {
 
         // SILENT REDIRECT - no popup
         if (userData.role === 'admin') {
-          window.location.href = '/admin-dashboard.html';
+          window.location.href = 'admin-dashboard.html';
         } else {
-          window.location.href = '/dashboard.html';
+          window.location.href = 'dashboard.html';
         }
 
         return { success: true, user: userData };
@@ -123,7 +123,7 @@ class AuthSystem {
         });
 
         // SILENT REDIRECT - no popup
-        window.location.href = '/dashboard.html';
+        window.location.href = 'dashboard.html';
 
         return { success: true, user: newUser };
       }
@@ -175,7 +175,7 @@ class AuthSystem {
     Utils.removeStorage('currentUser');
     Utils.removeStorage('session');
     Utils.removeStorage('rememberedEmail');
-    window.location.href = '/index.html';
+    window.location.href = 'index.html';
   }
 
   // =====================================================
@@ -191,7 +191,7 @@ class AuthSystem {
   // =====================================================
   // Check Authentication
   // =====================================================
-  requireAuth(redirectTo = '/index.html') {
+  requireAuth(redirectTo = 'index.html') {
     if (!this.checkSession()) {
       window.location.href = redirectTo;
       return false;
@@ -205,7 +205,7 @@ class AuthSystem {
   requireAdmin() {
     const user = this.getCurrentUser();
     if (!user || user.role !== 'admin') {
-      window.location.href = '/index.html';
+      window.location.href = 'index.html';
       return false;
     }
     return true;
@@ -239,7 +239,7 @@ class AuthSystem {
           email: document.getElementById('signup-email')?.value,
           phone: document.getElementById('signup-phone')?.value,
           password: document.getElementById('signup-password')?.value,
-          confirmPassword: document.getElementById('signup-confirm-password')?.value,
+          confirmPassword: document.getElementById('signup-confirm')?.value,
           indexNumber: document.getElementById('index-number')?.value,
           examYear: document.getElementById('exam-year')?.value,
           schoolName: document.getElementById('school-name')?.value,
