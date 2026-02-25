@@ -9,7 +9,7 @@ class ApiService {
     // Use CONFIG for base URL - this will work in both dev and production
     this.baseUrl = window.CONFIG ? CONFIG.APP.API_URL : 
       (window.location.hostname === 'localhost' 
-        ? 'https://kuccps-api.onrender.com/api/v1'
+        ? 'http://localhost:5000/api/v1'
         : 'https://kuccps-api.onrender.com/api/v1');
     
     this.defaultHeaders = {
@@ -321,10 +321,6 @@ class ApiService {
   setToken(token) {
     if (token) {
       localStorage.setItem('auth_token', token);
-      // Also set in CONFIG if available
-      if (window.CONFIG) {
-        window.CONFIG.AUTH_TOKEN = token;
-      }
     }
   }
 
@@ -334,9 +330,6 @@ class ApiService {
 
   removeToken() {
     localStorage.removeItem('auth_token');
-    if (window.CONFIG) {
-      delete window.CONFIG.AUTH_TOKEN;
-    }
   }
 
   // =====================================================
