@@ -630,7 +630,7 @@
   </div>
 
   <script>
-    // Load user data using Utils (consistent with other pages)
+    // Load user data using Utils
     const user = Utils.getStorage('currentUser');
     
     if (!user) {
@@ -691,7 +691,6 @@
 
     function openCall() {
       const phone = '+254743665527';
-      // Use confirm only for call (this is acceptable)
       if (confirm(`Call ${phone}?`)) {
         window.location.href = `tel:${phone}`;
       }
@@ -703,7 +702,6 @@
       if (window.Auth) {
         Auth.logout();
       } else {
-        // Fallback
         if (confirm('Are you sure you want to logout?')) {
           localStorage.removeItem('currentUser');
           window.location.href = 'index.html';
