@@ -219,7 +219,7 @@ class PaymentHandler {
       setTimeout(() => {
         // Check if we're on a payment page
         if (window.location.pathname.includes('payment')) {
-          window.location.href = '/dashboard.html';
+          window.location.href = 'dashboard.html';
         } else {
           // Refresh current page to update payment status
           window.location.reload();
@@ -534,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = Utils.getStorage('currentUser');
       if (!user) {
         Utils.showNotification('Please login first', 'warning');
-        window.location.href = '/index.html';
+        window.location.href = 'index.html';
         return;
       }
       
@@ -576,23 +576,4 @@ document.addEventListener('DOMContentLoaded', () => {
       paymentHandler.closePaymentModal();
     });
   }
-  
-  // Check for pending payment on page load
-  const pendingPayment = Utils.getStorage('pendingPayment');
-  if (pendingPayment) {
-    const user = Utils.getStorage('currentUser');
-    if (user && !user.paymentStatus) {
-      // Ask user if they want to continue pending payment
-      if (confirm('You have a pending payment. Would you like to continue?')) {
-        paymentHandler.initiatePayment(user, pendingPayment.amount, pendingPayment.metadata);
-      }
-    }
-  }
 });
-
-// =====================================================
-// Export for module use if needed
-// =====================================================
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PaymentHandler;
-}
