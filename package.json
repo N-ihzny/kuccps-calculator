@@ -28,7 +28,7 @@
     "jsonwebtoken": "^9.0.1",
     "moment": "^2.29.4",
     "morgan": "^1.10.0",
-    "mysql2": "^3.6.0",
+    "pg": "^8.11.0"
     "node-cache": "^5.1.2",
     "nodemailer": "^8.0.1"
   },
@@ -38,3 +38,4 @@
     "supertest": "^6.3.3"
   }
 }
+
