@@ -31,6 +31,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Our JS Files -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    
     <style>
         /* =====================================================
            MODERN STYLING - VERIFY PAYMENT
@@ -257,6 +262,13 @@
             border: 1px solid rgba(239,68,68,0.3);
         }
 
+        .verification-status.processing {
+            display: block;
+            background: rgba(59,130,246,0.1);
+            color: var(--secondary);
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
         .transaction-details {
             background: rgba(255,255,255,0.8);
             border-radius: var(--radius-lg);
@@ -399,7 +411,7 @@
             <div class="verification-body">
                 <div class="info-box">
                     <i class="bi bi-info-circle-fill"></i>
-                    <p><strong>Already paid?</strong> Enter your KCSE Index Number, Email, and Phone Number below. If your payment is found, you'll be able to access the calculator again without paying.</p>
+                    <p><strong>Already paid?</strong> Enter your KCSE Index Number, Email, and Phone Number below. If your payment is found in our database, you'll be able to access all calculators again without paying.</p>
                 </div>
 
                 <form id="verificationForm" onsubmit="event.preventDefault();">
@@ -434,8 +446,8 @@
                 <div id="transactionDetails" class="transaction-details">
                     <h4><i class="bi bi-check-circle-fill"></i> Payment Found!</h4>
                     <div class="transaction-item">
-                        <span class="transaction-label">Transaction ID:</span>
-                        <span class="transaction-value" id="transId">-</span>
+                        <span class="transaction-label">Reference:</span>
+                        <span class="transaction-value" id="transRef">-</span>
                     </div>
                     <div class="transaction-item">
                         <span class="transaction-label">Date Paid:</span>
@@ -455,10 +467,10 @@
                     <h4 style="margin-bottom: 15px; color: var(--dark);">Select Program to Access</h4>
                     <select id="programType">
                         <option value="">Choose a program...</option>
-                        <option value="degree">Degree Programs</option>
-                        <option value="diploma">Diploma Programs</option>
-                        <option value="certificate">Certificate Programs</option>
-                        <option value="kmtc">KMTC Programs</option>
+                        <option value="degree_calculator.html">Degree Programs</option>
+                        <option value="diploma.html">Diploma Programs</option>
+                        <option value="certificate.html">Certificate Programs</option>
+                        <option value="kmtc.html">KMTC Programs</option>
                     </select>
                     <button class="continue-btn" onclick="continueToProgram()">
                         <i class="bi bi-arrow-right-circle"></i> Continue to Program
@@ -495,8 +507,8 @@
             }
         }
 
-        // Verify payment against transaction history
-        function verifyPayment() {
+        // Verify payment against backend
+        async function verifyPayment() {
             const indexNumber = document.getElementById('indexNumber').value;
             const email = document.getElementById('email').value;
             const phone = document.getElementById('phone').value;
@@ -506,60 +518,143 @@
             verifyBtn.disabled = true;
             verifyBtn.innerHTML = '<span class="loader"></span> Verifying...';
             
-            setTimeout(() => {
-                try {
-                    // Get all transactions from localStorage
-                    const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
+            showStatus('Checking payment records...', 'processing');
+
+            try {
+                // Call backend to verify payment
+                const response = await fetch(`${CONFIG.APP.API_URL}/payments/verify-existing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        indexNumber,
+                        email,
+                        phone
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data && data.success) {
+                    // Payment found!
+                    currentTransaction = data.data.transaction;
+                    const user = data.data.user;
                     
-                    // Find matching transaction
-                    const matchingTransaction = transactions.find(t => 
-                        t.indexNumber === indexNumber && 
-                        t.email === email &&
+                    showStatus('✅ Payment verified successfully! You can now access all programs.', 'success');
+                    
+                    // Display transaction details
+                    document.getElementById('transRef').textContent = currentTransaction.reference || 'N/A';
+                    document.getElementById('transDate').textContent = currentTransaction.date ? 
+                        new Date(currentTransaction.date).toLocaleString() : 'N/A';
+                    
+                    // Save user data
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    
+                    // Save transaction
+                    const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
+                    transactions.push(currentTransaction);
+                    localStorage.setItem('kuccps_transactions', JSON.stringify(transactions));
+                    
+                    // Show transaction details and program selector
+                    document.getElementById('transactionDetails').classList.add('show');
+                    document.getElementById('programSelector').classList.add('show');
+                    
+                    // Save verification status
+                    localStorage.setItem('paymentVerified', 'true');
+                    localStorage.setItem('paymentEmail', email);
+                    localStorage.setItem('paymentIndex', indexNumber);
+                    localStorage.setItem('paymentPhone', phone);
+                    localStorage.setItem('paymentReference', currentTransaction.reference);
+                    
+                    // Scroll to program selector
+                    setTimeout(() => {
+                        document.getElementById('programSelector').scrollIntoView({ behavior: 'smooth' });
+                    }, 300);
+                    
+                } else {
+                    // No payment found - check localStorage as fallback
+                    const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
+                    const localMatch = transactions.find(t => 
+                        (t.indexNumber === indexNumber || t.email === email) && 
                         t.status === 'completed'
                     );
                     
-                    if (matchingTransaction) {
-                        // Payment found!
-                        currentTransaction = matchingTransaction;
+                    if (localMatch) {
+                        // Local fallback found
+                        currentTransaction = localMatch;
                         
-                        showStatus('✅ Payment verified successfully! You can now access your results.', 'success');
+                        showStatus('✅ Payment found in local storage!', 'success');
                         
-                        // Display transaction details
-                        document.getElementById('transId').textContent = matchingTransaction.reference || 'N/A';
-                        document.getElementById('transDate').textContent = matchingTransaction.date ? 
-                            new Date(matchingTransaction.date).toLocaleString() : 'N/A';
+                        document.getElementById('transRef').textContent = localMatch.reference || 'N/A';
+                        document.getElementById('transDate').textContent = localMatch.date ? 
+                            new Date(localMatch.date).toLocaleString() : 'N/A';
                         
-                        // Show transaction details and program selector
                         document.getElementById('transactionDetails').classList.add('show');
                         document.getElementById('programSelector').classList.add('show');
                         
-                        // Save verification status
-                        localStorage.setItem('paymentVerified', 'true');
-                        localStorage.setItem('paymentEmail', email);
-                        localStorage.setItem('paymentIndex', indexNumber);
-                        localStorage.setItem('paymentPhone', phone);
-                        localStorage.setItem('paymentReference', matchingTransaction.reference);
+                        // Create user from local data
+                        const user = {
+                            id: 'USR' + Date.now(),
+                            email: email,
+                            indexNumber: indexNumber,
+                            phone: phone,
+                            paymentStatus: true,
+                            fullName: 'Verified User'
+                        };
+                        localStorage.setItem('currentUser', JSON.stringify(user));
                         
-                        // Scroll to program selector
-                        document.getElementById('programSelector').scrollIntoView({ behavior: 'smooth' });
                     } else {
-                        // No payment found
                         showStatus('❌ No payment found with these details. Please check and try again.', 'error');
-                        
                         document.getElementById('transactionDetails').classList.remove('show');
                         document.getElementById('programSelector').classList.remove('show');
                     }
-                } catch (error) {
-                    console.error('Verification error:', error);
-                    showStatus('❌ Error verifying payment. Please try again.', 'error');
                 }
                 
-                // Reset button
+            } catch (error) {
+                console.error('Verification error:', error);
+                
+                // Fallback to localStorage
+                try {
+                    const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
+                    const localMatch = transactions.find(t => 
+                        t.indexNumber === indexNumber || t.email === email
+                    );
+                    
+                    if (localMatch) {
+                        currentTransaction = localMatch;
+                        showStatus('✅ Payment found in local storage!', 'success');
+                        
+                        document.getElementById('transRef').textContent = localMatch.reference || 'N/A';
+                        document.getElementById('transDate').textContent = localMatch.date ? 
+                            new Date(localMatch.date).toLocaleString() : 'N/A';
+                        
+                        document.getElementById('transactionDetails').classList.add('show');
+                        document.getElementById('programSelector').classList.add('show');
+                        
+                        const user = {
+                            id: 'USR' + Date.now(),
+                            email: email,
+                            indexNumber: indexNumber,
+                            phone: phone,
+                            paymentStatus: true,
+                            fullName: 'Verified User'
+                        };
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    } else {
+                        showStatus('❌ Error connecting to server. Please try again.', 'error');
+                    }
+                } catch (e) {
+                    showStatus('❌ Error verifying payment. Please try again.', 'error');
+                }
+            }
+            
+            // Reset button
+            setTimeout(() => {
                 verifyBtn.disabled = false;
                 verifyBtn.classList.add('active');
                 verifyBtn.innerHTML = '<i class="bi bi-search"></i> Check Verification';
-                
-            }, 1500);
+            }, 1000);
         }
 
         // Show status message
@@ -571,33 +666,26 @@
 
         // Continue to selected program
         function continueToProgram() {
-            const programType = document.getElementById('programType').value;
+            const programUrl = document.getElementById('programType').value;
             
-            if (!programType) {
-                alert('Please select a program type');
+            if (!programUrl) {
+                Utils.showNotification('Please select a program', 'warning');
                 return;
             }
             
-            const urls = {
-                'degree': 'degree-calculator.html',
-                'diploma': 'diploma.html',
-                'certificate': 'certificate.html',
-                'kmtc': 'kmtc.html'
-            };
-            
-            window.location.href = urls[programType];
+            window.location.href = programUrl;
         }
 
         // Load saved data if available
         function loadSavedData() {
             try {
-                const index = localStorage.getItem('paymentIndex');
-                const email = localStorage.getItem('paymentEmail');
-                const phone = localStorage.getItem('paymentPhone');
+                const user = JSON.parse(localStorage.getItem('currentUser'));
                 
-                if (index) document.getElementById('indexNumber').value = index;
-                if (email) document.getElementById('email').value = email;
-                if (phone) document.getElementById('phone').value = phone;
+                if (user) {
+                    if (user.indexNumber) document.getElementById('indexNumber').value = user.indexNumber;
+                    if (user.email) document.getElementById('email').value = user.email;
+                    if (user.phone) document.getElementById('phone').value = user.phone;
+                }
                 
                 checkFormValidity();
             } catch (e) {
@@ -609,25 +697,44 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadSavedData();
             
-            // Check if there are any transactions in localStorage
-            const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
-            console.log('Total transactions in system:', transactions.length);
+            // Check URL for reference parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const reference = urlParams.get('reference');
+            
+            if (reference) {
+                document.getElementById('indexNumber').focus();
+            }
         });
 
-        // For demo purposes - function to create sample transactions
+        // For demo/testing - add sample transaction
         window.addSampleTransaction = function(index, email, phone) {
             const transactions = JSON.parse(localStorage.getItem('kuccps_transactions') || '[]');
+            const reference = 'TXN_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            
             transactions.push({
                 indexNumber: index,
                 email: email,
                 phone: phone,
-                reference: 'TXN_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                reference: reference,
                 date: new Date().toISOString(),
                 status: 'completed',
                 amount: 200
             });
+            
             localStorage.setItem('kuccps_transactions', JSON.stringify(transactions));
-            alert('Sample transaction added for ' + email);
+            
+            const user = {
+                id: 'USR' + Date.now(),
+                fullName: 'Test User',
+                email: email,
+                phone: phone,
+                indexNumber: index,
+                paymentStatus: true,
+                transactionRef: reference
+            };
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            alert('✅ Sample transaction added for ' + email);
             location.reload();
         }
     </script>
