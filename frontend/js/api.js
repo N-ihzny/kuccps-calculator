@@ -1,16 +1,16 @@
 // =====================================================
 // KUCCPS COURSE CHECKER - API SERVICE
 // Professional API Integration
-// UPDATED FOR RENDER DEPLOYMENT
+// FIXED - Proper Authentication for Render
 // =====================================================
 
 class ApiService {
   constructor() {
-    // Use CONFIG for base URL - this will work in both dev and production
+    // Use CONFIG for base URL - FIXED to use correct URL
     this.baseUrl = window.CONFIG ? CONFIG.APP.API_URL : 
       (window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000/api/v1'
-        : 'https://kuccps-api.onrender.com/api/v1');
+        ? 'http://localhost:5000/api'
+        : 'https://kuccps-calculator.onrender.com/api');
     
     this.defaultHeaders = {
       'Content-Type': 'application/json',
@@ -38,10 +38,17 @@ class ApiService {
       signal: controller.signal
     };
 
-    // Add auth token if available
+    // FIXED: Add both token and user ID for authentication
     const token = this.getToken();
+    const user = this.getUser();
+    
     if (token) {
       options.headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // Add user ID in header as fallback
+    if (user && user.id) {
+      options.headers['X-User-ID'] = user.id;
     }
 
     if (data) {
@@ -71,11 +78,14 @@ class ApiService {
         switch (response.status) {
           case 401:
             // Unauthorized - clear token and redirect to login
+            console.log('401 Unauthorized - redirecting to login');
             this.removeToken();
-            if (window.location.pathname !== '/index.html') {
+            // Don't redirect if already on index page
+            if (!window.location.pathname.includes('index.html') && 
+                window.location.pathname !== '/') {
               window.location.href = '/index.html';
             }
-            throw new Error('Session expired. Please login again.');
+            throw new Error(result.message || 'Session expired. Please login again.');
           
           case 403:
             throw new Error('You do not have permission to perform this action.');
@@ -127,16 +137,26 @@ class ApiService {
   }
 
   async login(email, password) {
-    return this.request('/auth/login', 'POST', { email, password });
+    const response = await this.request('/auth/login', 'POST', { email, password });
+    // Store token if returned
+    if (response && response.success && response.data && response.data.token) {
+      this.setToken(response.data.token);
+    }
+    return response;
   }
 
   async socialLogin(provider, email, fullName, phone) {
-    return this.request('/auth/social-login', 'POST', {
+    const response = await this.request('/auth/social-login', 'POST', {
       provider,
       email,
       fullName,
       phone
     });
+    // Store token if returned
+    if (response && response.success && response.data && response.data.token) {
+      this.setToken(response.data.token);
+    }
+    return response;
   }
 
   async verifyToken() {
@@ -178,12 +198,8 @@ class ApiService {
     return this.request('/payments/verify', 'POST', { reference });
   }
 
-  async verifyExistingPayment(indexNumber, email, phone) {
-    return this.request('/payments/verify-existing', 'POST', {
-      indexNumber,
-      email,
-      phone
-    });
+  async verifyExistingPayment(data) {
+    return this.request('/payments/verify-existing', 'POST', data);
   }
 
   async getUserTransactions(userId) {
@@ -361,7 +377,7 @@ class ApiService {
   // =====================================================
   async healthCheck() {
     try {
-      const response = await fetch(`${this.baseUrl.replace('/api/v1', '')}/health`);
+      const response = await fetch(`${this.baseUrl.replace('/api', '')}/health`);
       return response.ok;
     } catch {
       return false;
