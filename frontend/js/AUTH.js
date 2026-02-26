@@ -1,3 +1,4 @@
+here is my AUTH.js
 // =====================================================
 // KUCCPS COURSE CHECKER - AUTHENTICATION SYSTEM
 // PROFESSIONAL VERSION - NO POPUPS, LIVE BACKEND ONLY
