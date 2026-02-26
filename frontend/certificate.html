@@ -906,13 +906,27 @@
                 return;
             }
 
-            // Check payment status
-            if (user.paymentStatus) {
-                // Already paid - calculate directly
-                await fetchAndDisplayResults('certificate');
-            } else {
-                // Show payment modal
-                document.getElementById('paymentModal').style.display = 'flex';
+            // Check payment status from API (not just localStorage)
+            try {
+                const statusResponse = await fetch(`${CONFIG.APP.API_URL}/payments/status/${user.id}`);
+                const statusData = await statusResponse.json();
+                
+                if (statusData.success && statusData.data.hasPaid) {
+                    // Update local storage
+                    user.paymentStatus = true;
+                    Utils.setStorage('currentUser', user);
+                    await fetchAndDisplayResults('certificate');
+                } else {
+                    // Show payment modal
+                    document.getElementById('paymentModal').style.display = 'flex';
+                }
+            } catch (error) {
+                // Fallback to local storage check
+                if (user.paymentStatus) {
+                    await fetchAndDisplayResults('certificate');
+                } else {
+                    document.getElementById('paymentModal').style.display = 'flex';
+                }
             }
         }
 
@@ -1071,7 +1085,7 @@
             document.getElementById('paymentModal').style.display = 'none';
         }
 
-        // Handle payment
+        // Handle payment - FIXED: Redirect to Paystack payment link
         document.getElementById('payNowBtn')?.addEventListener('click', async function() {
             const fullName = document.getElementById('paymentFullName').value;
             const email = document.getElementById('paymentEmail').value;
@@ -1113,59 +1127,65 @@
             statusDiv.style.display = 'block';
 
             try {
-                // Initialize payment with Paystack
-                const response = await API.initializePayment(user.id, email, 200, {
-                    fullName,
-                    phone,
-                    indexNumber,
-                    grades: collectedGrades,
-                    programType: 'certificate'
-                });
-                
-                if (response && response.success) {
-                    // Open Paystack popup
-                    const handler = PaystackPop.setup({
-                        key: CONFIG.PAYMENT.PUBLISHABLE_KEY,
+                // Initialize payment with backend
+                const response = await fetch(`${CONFIG.APP.API_URL}/payments/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: user.id,
                         email: email,
-                        amount: 20000, // 200 KES in kobo
-                        ref: response.data.reference,
-                        currency: 'KES',
-                        callback: async function(paymentResponse) {
-                            statusDiv.innerHTML = 'Verifying payment...';
-                            
-                            // Verify payment
-                            const verifyResponse = await API.verifyPayment(paymentResponse.reference);
-                            
-                            if (verifyResponse && verifyResponse.success) {
-                                // Update user payment status
-                                user.paymentStatus = true;
-                                Utils.setStorage('currentUser', user);
-                                
-                                statusDiv.className = 'payment-status success';
-                                statusDiv.innerHTML = '✅ Payment successful! Loading your results...';
-                                
-                                setTimeout(() => {
-                                    closePaymentModal();
-                                    fetchAndDisplayResults('certificate');
-                                }, 2000);
-                            } else {
-                                throw new Error('Payment verification failed');
-                            }
-                        },
-                        onClose: function() {
-                            statusDiv.className = 'payment-status error';
-                            statusDiv.innerHTML = '❌ Payment cancelled. Please try again.';
+                        amount: 200,
+                        metadata: {
+                            fullName,
+                            phone,
+                            indexNumber,
+                            grades: collectedGrades,
+                            programType: 'certificate'
                         }
-                    });
-                    
-                    handler.openIframe();
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data && data.success) {
+                    // Store payment data temporarily
+                    localStorage.setItem('pendingPayment', JSON.stringify({
+                        reference: data.data.reference,
+                        userId: user.id,
+                        email: email,
+                        fullName: fullName,
+                        phone: phone,
+                        indexNumber: indexNumber,
+                        grades: collectedGrades,
+                        programType: 'certificate'
+                    }));
+
+                    // FIXED: Use your actual Paystack payment link
+                    const paymentUrl = new URL('https://paystack.com/pay/kuccps-checker');
+                    paymentUrl.searchParams.append('email', email);
+                    paymentUrl.searchParams.append('reference', data.data.reference);
+                    paymentUrl.searchParams.append('user_id', user.id);
+                    paymentUrl.searchParams.append('customer_name', fullName);
+                    paymentUrl.searchParams.append('phone', phone);
+                    paymentUrl.searchParams.append('index_number', indexNumber);
+
+                    // Redirect to Paystack payment page
+                    window.location.href = paymentUrl.toString();
                 } else {
-                    throw new Error(response?.message || 'Payment initialization failed');
+                    throw new Error(data?.message || 'Payment initialization failed');
                 }
             } catch (error) {
                 statusDiv.className = 'payment-status error';
                 statusDiv.innerHTML = '❌ Payment failed. Please try again.';
                 console.error('Payment error:', error);
+                
+                // Re-enable pay button after 3 seconds
+                setTimeout(() => {
+                    const payBtn = document.getElementById('payNowBtn');
+                    if (payBtn) payBtn.disabled = false;
+                }, 3000);
             }
         });
 
@@ -1185,6 +1205,17 @@
             const user = Utils.getStorage('currentUser');
             if (user && user.paymentStatus) {
                 document.getElementById('existingPaymentBanner').style.display = 'block';
+            }
+            
+            // Check if returning from payment
+            const urlParams = new URLSearchParams(window.location.search);
+            const reference = urlParams.get('reference');
+            if (reference) {
+                // Show results immediately
+                setTimeout(() => {
+                    document.getElementById('existingPaymentBanner').style.display = 'block';
+                    collectGrades();
+                }, 1000);
             }
         });
     </script>
