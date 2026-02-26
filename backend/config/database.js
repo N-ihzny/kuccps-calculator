@@ -7,6 +7,7 @@ const pool = mysql.createPool({
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'kuccps_calculator',
+    port: 3306,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
@@ -18,11 +19,16 @@ const pool = mysql.createPool({
 const testConnection = async () => {
     try {
         const connection = await pool.getConnection();
-        console.log('✅ Database connected successfully');
+        console.log('✅ Database connected successfully to:', process.env.DB_HOST);
         connection.release();
         return true;
     } catch (error) {
         console.error('❌ Database connection failed:', error.message);
+        console.error('Connection details:', {
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            database: process.env.DB_NAME
+        });
         return false;
     }
 };
