@@ -22,10 +22,23 @@ const PORT = process.env.PORT || 5000;
 
 // Security middleware
 app.use(helmet());
+
+// ✅ FIXED: Updated CORS configuration to allow your frontend domains
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5500',
-    credentials: true
+    origin: [
+        'https://kuccps-calculator-1.onrender.com',
+        'http://localhost:5500',
+        'http://localhost:3000',
+        'http://127.0.0.1:5500',
+        process.env.FRONTEND_URL
+    ].filter(Boolean), // Remove undefined values
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID']
 }));
+
+// ✅ ADDED: Handle preflight requests explicitly
+app.options('*', cors());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -44,6 +57,9 @@ app.use(morgan('combined'));
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ✅ ADDED: Raw body parser for webhooks (Paystack sends raw JSON)
+app.use('/api/webhooks', express.raw({ type: 'application/json' }));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -114,6 +130,7 @@ const startServer = async () => {
             console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
             console.log(`🔗 API URL: http://localhost:${PORT}`);
             console.log(`📚 Database: ${dbConnected ? 'Connected ✅' : 'Disconnected ❌'}`);
+            console.log(`🌐 Allowed origins: https://kuccps-calculator-1.onrender.com, localhost`);
         });
 
     } catch (error) {
