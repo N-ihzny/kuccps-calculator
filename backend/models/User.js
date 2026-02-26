@@ -5,49 +5,49 @@ class User {
     static async create(userData) {
         const { fullName, email, phone, password, indexNumber, examYear, schoolName, county, authProvider } = userData;
         
-        const [result] = await pool.query(
+        const result = await pool.query(
             `INSERT INTO users (full_name, email, phone, password, index_number, exam_year, school_name, county, auth_provider) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
             [fullName, email, phone, password, indexNumber || null, examYear || null, schoolName || null, county || null, authProvider || 'local']
         );
         
-        return result.insertId;
+        return result.rows[0].id;
     }
 
     // Find user by email
     static async findByEmail(email) {
-        const [users] = await pool.query(
-            'SELECT * FROM users WHERE email = ?',
+        const result = await pool.query(
+            'SELECT * FROM users WHERE email = $1',
             [email]
         );
-        return users[0];
+        return result.rows[0];
     }
 
     // Find user by ID
     static async findById(id) {
-        const [users] = await pool.query(
-            'SELECT id, full_name, email, phone, index_number, exam_year, school_name, county, role, payment_status, auth_provider, created_at, updated_at FROM users WHERE id = ?',
+        const result = await pool.query(
+            'SELECT id, full_name, email, phone, index_number, exam_year, school_name, county, role, payment_status, auth_provider, created_at, updated_at FROM users WHERE id = $1',
             [id]
         );
-        return users[0];
+        return result.rows[0];
     }
 
     // Find user by index number
     static async findByIndexNumber(indexNumber) {
-        const [users] = await pool.query(
-            'SELECT * FROM users WHERE index_number = ?',
+        const result = await pool.query(
+            'SELECT * FROM users WHERE index_number = $1',
             [indexNumber]
         );
-        return users[0];
+        return result.rows[0];
     }
 
     // Find user by phone
     static async findByPhone(phone) {
-        const [users] = await pool.query(
-            'SELECT * FROM users WHERE phone = ?',
+        const result = await pool.query(
+            'SELECT * FROM users WHERE phone = $1',
             [phone]
         );
-        return users[0];
+        return result.rows[0];
     }
 
     // Update user
@@ -55,71 +55,73 @@ class User {
         const allowedFields = ['full_name', 'phone', 'school_name', 'county', 'exam_year', 'index_number'];
         const sets = [];
         const values = [];
+        let paramIndex = 1;
 
         for (const [key, value] of Object.entries(updates)) {
             if (allowedFields.includes(key)) {
-                sets.push(`${key} = ?`);
+                sets.push(`${key} = $${paramIndex}`);
                 values.push(value);
+                paramIndex++;
             }
         }
 
         if (sets.length === 0) return false;
 
         values.push(id);
-        const [result] = await pool.query(
-            `UPDATE users SET ${sets.join(', ')} WHERE id = ?`,
+        const result = await pool.query(
+            `UPDATE users SET ${sets.join(', ')} WHERE id = $${paramIndex}`,
             values
         );
 
-        return result.affectedRows > 0;
+        return result.rowCount > 0;
     }
 
     // Update payment status
     static async updatePaymentStatus(id, status) {
-        const [result] = await pool.query(
-            'UPDATE users SET payment_status = ? WHERE id = ?',
+        const result = await pool.query(
+            'UPDATE users SET payment_status = $1 WHERE id = $2',
             [status, id]
         );
-        return result.affectedRows > 0;
+        return result.rowCount > 0;
     }
 
     // Update password
     static async updatePassword(id, hashedPassword) {
-        const [result] = await pool.query(
-            'UPDATE users SET password = ? WHERE id = ?',
+        const result = await pool.query(
+            'UPDATE users SET password = $1 WHERE id = $2',
             [hashedPassword, id]
         );
-        return result.affectedRows > 0;
+        return result.rowCount > 0;
     }
 
     // Delete user
     static async delete(id) {
-        const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
-        return result.affectedRows > 0;
+        const result = await pool.query('DELETE FROM users WHERE id = $1', [id]);
+        return result.rowCount > 0;
     }
 
     // Get user stats
     static async getStats() {
-        const [stats] = await pool.query(
+        const result = await pool.query(
             `SELECT 
                 COUNT(*) as total_users,
-                SUM(CASE WHEN payment_status = 1 THEN 1 ELSE 0 END) as paid_users,
-                SUM(CASE WHEN payment_status = 0 THEN 1 ELSE 0 END) as unpaid_users,
+                SUM(CASE WHEN payment_status = true THEN 1 ELSE 0 END) as paid_users,
+                SUM(CASE WHEN payment_status = false THEN 1 ELSE 0 END) as unpaid_users,
                 COUNT(DISTINCT county) as counties_represented,
                 MIN(created_at) as earliest_user,
                 MAX(created_at) as latest_user
              FROM users`
         );
-        return stats[0];
+        return result.rows[0];
     }
 
     // Get users by date range
     static async getByDateRange(startDate, endDate) {
-        const [users] = await pool.query(
-            'SELECT * FROM users WHERE created_at BETWEEN ? AND ? ORDER BY created_at DESC',
+        const result = await pool.query(
+            'SELECT * FROM users WHERE created_at BETWEEN $1 AND $2 ORDER BY created_at DESC',
             [startDate, endDate]
         );
-        return users;
+        return result.rows;
     }
 }
 
