@@ -10,9 +10,44 @@
   <!-- CSS Links -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="assets/css/style.css">
+  
+  <!-- Paystack Library -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  
+  <!-- Our JS Files -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/AUTH.js"></script>
   
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-500: #3b82f6;
+      --primary-600: #2563eb;
+      --primary-700: #1d4ed8;
+      --success-500: #10b981;
+      --success-600: #059669;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-500: #6b7280;
+      --gradient-primary: linear-gradient(135deg, #3b82f6, #2563eb);
+      --gradient-success: linear-gradient(135deg, #10b981, #059669);
+      --shadow-success: 0 10px 20px -5px rgba(16,185,129,0.3);
+      --shadow-success-hover: 0 15px 30px -5px rgba(16,185,129,0.5);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
     .payment-wrapper {
       min-height: 100vh;
       display: flex;
@@ -31,6 +66,17 @@
       animation: fadeInUp 0.8s ease;
     }
     
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
     .payment-header {
       text-align: center;
       margin-bottom: 30px;
@@ -46,6 +92,7 @@
       font-size: 2rem;
       font-weight: 700;
       margin-bottom: 10px;
+      color: #1a1a1a;
     }
     
     .payment-amount {
@@ -89,6 +136,15 @@
       padding-bottom: 0;
     }
     
+    .user-summary-item span {
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+    
+    .user-summary-item strong {
+      color: #1a1a1a;
+    }
+    
     .payment-methods {
       display: grid;
       gap: 15px;
@@ -105,12 +161,12 @@
     
     .payment-method:hover {
       border-color: var(--primary-500);
-      background: var(--primary-50);
+      background: #eff6ff;
     }
     
     .payment-method.selected {
       border-color: var(--primary-500);
-      background: var(--primary-50);
+      background: #eff6ff;
     }
     
     .payment-method-header {
@@ -126,12 +182,6 @@
     .payment-method.mpesa i { color: #4CAF50; }
     .payment-method.card i { color: var(--primary-500); }
     
-    .manual-entry {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid var(--gray-200);
-    }
-    
     .btn-pay {
       width: 100%;
       padding: 16px;
@@ -146,9 +196,14 @@
       box-shadow: var(--shadow-success);
     }
     
-    .btn-pay:hover {
+    .btn-pay:hover:not(:disabled) {
       transform: translateY(-3px);
       box-shadow: var(--shadow-success-hover);
+    }
+    
+    .btn-pay:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
     
     .payment-status {
@@ -173,6 +228,26 @@
       color: #991b1b;
     }
     
+    .payment-status.processing {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-500);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
     .timer {
       font-size: 1.5rem;
       font-weight: 700;
@@ -188,10 +263,35 @@
     .back-link a {
       color: var(--gray-500);
       text-decoration: none;
+      transition: all 0.3s ease;
     }
     
     .back-link a:hover {
       color: var(--primary-500);
+    }
+    
+    .info-box {
+      background: #f0f9ff;
+      border-left: 4px solid var(--primary-500);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px 0;
+      font-size: 0.95rem;
+    }
+    
+    .info-box i {
+      color: var(--primary-500);
+      margin-right: 8px;
+    }
+    
+    @media (max-width: 480px) {
+      .payment-card {
+        padding: 25px;
+      }
+      
+      .amount {
+        font-size: 2.5rem;
+      }
     }
   </style>
 </head>
@@ -226,23 +326,18 @@
         </div>
       </div>
       
+      <div class="info-box">
+        <i class="bi bi-info-circle-fill"></i>
+        <strong>Important:</strong> You'll be redirected to Paystack's secure payment page to complete your transaction.
+      </div>
+      
       <div class="payment-methods">
-        <div class="payment-method mpesa selected" onclick="selectMethod('mpesa')">
-          <div class="payment-method-header">
-            <i class="bi bi-phone-fill"></i>
-            <div>
-              <h5 class="mb-1">M-Pesa</h5>
-              <p class="small text-muted mb-0">Pay via M-Pesa STK Push</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="payment-method card" onclick="selectMethod('card')">
+        <div class="payment-method card selected" onclick="selectMethod('card')">
           <div class="payment-method-header">
             <i class="bi bi-credit-card-fill"></i>
             <div>
-              <h5 class="mb-1">Card Payment</h5>
-              <p class="small text-muted mb-0">Visa, Mastercard, Amex</p>
+              <h5 class="mb-1">Card / M-Pesa</h5>
+              <p class="small text-muted mb-0">Pay via Paystack (Cards & M-Pesa)</p>
             </div>
           </div>
         </div>
@@ -252,23 +347,11 @@
         <i class="bi bi-lock-fill"></i> Pay KES 200 Now
       </button>
       
-      <div class="payment-status" id="paymentStatus">
-        <div class="spinner"></div>
-        <p class="mt-3">Initiating payment. Please check your phone...</p>
-        <div class="timer" id="timer">120s</div>
-      </div>
-      
-      <div class="manual-entry">
-        <p class="small text-muted mb-3">Already paid? Enter transaction code:</p>
-        <div class="input-group">
-          <input type="text" class="form-control" id="transactionCode" placeholder="e.g., QW12Y3R4T5">
-          <button class="btn btn-outline-primary" onclick="verifyTransaction()">Verify</button>
-        </div>
-      </div>
+      <div class="payment-status" id="paymentStatus"></div>
       
       <div class="back-link">
-        <a href="degree-calculator.html">
-          <i class="bi bi-arrow-left"></i> Back to Calculator
+        <a href="#" onclick="goBack()">
+          <i class="bi bi-arrow-left"></i> Back
         </a>
       </div>
     </div>
@@ -276,10 +359,11 @@
   
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  
   <script>
-    let currentMethod = 'mpesa';
-    let timerInterval;
-    let timeLeft = 120;
+    let currentMethod = 'card';
+    let paymentInProgress = false;
     
     // Load user data
     document.addEventListener('DOMContentLoaded', function() {
@@ -288,8 +372,16 @@
         document.getElementById('summaryName').textContent = user.fullName || 'N/A';
         document.getElementById('summaryEmail').textContent = user.email || 'N/A';
         document.getElementById('summaryPhone').textContent = user.phone || 'N/A';
+        
+        // Check if already paid
+        if (user.paymentStatus) {
+          showStatus('You already have active access! Redirecting...', 'success');
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 2000);
+        }
       } else {
-        window.location.href = '/';
+        window.location.href = 'index.html';
       }
     });
     
@@ -301,92 +393,133 @@
       document.querySelector(`.payment-method.${method}`).classList.add('selected');
     }
     
-    function processPayment() {
+    async function processPayment() {
+      if (paymentInProgress) return;
+      
       const payBtn = document.getElementById('payBtn');
-      const statusDiv = document.getElementById('paymentStatus');
+      const user = JSON.parse(localStorage.getItem('currentUser'));
       
-      payBtn.disabled = true;
-      statusDiv.classList.add('show');
-      
-      startTimer();
-      
-      // Simulate payment processing
-      setTimeout(() => {
-        if (timeLeft > 0) {
-          // Payment successful
-          clearInterval(timerInterval);
-          statusDiv.innerHTML = `
-            <i class="bi bi-check-circle-fill" style="font-size: 3rem; color: #10b981;"></i>
-            <p class="mt-3">Payment successful! Redirecting to dashboard...</p>
-          `;
-          statusDiv.classList.add('success');
-          
-          // Update user payment status
-          const user = JSON.parse(localStorage.getItem('currentUser'));
-          user.paymentStatus = true;
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          
-          // Save transaction
-          const transaction = {
-            reference: 'TXN' + Date.now(),
-            amount: 200,
-            method: currentMethod,
-            date: new Date().toISOString(),
-            status: 'completed',
-            user: user.email
-          };
-          
-          const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-          transactions.push(transaction);
-          localStorage.setItem('transactions', JSON.stringify(transactions));
-          
-          setTimeout(() => {
-            window.location.href = '/dashboard.html';
-          }, 2000);
-        }
-      }, 5000);
-    }
-    
-    function startTimer() {
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        document.getElementById('timer').textContent = timeLeft + 's';
-        
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          const statusDiv = document.getElementById('paymentStatus');
-          statusDiv.innerHTML = `
-            <i class="bi bi-x-circle-fill" style="font-size: 3rem; color: #ef4444;"></i>
-            <p class="mt-3">Payment timeout. Please try again.</p>
-          `;
-          statusDiv.classList.add('error');
-          document.getElementById('payBtn').disabled = false;
-        }
-      }, 1000);
-    }
-    
-    function verifyTransaction() {
-      const code = document.getElementById('transactionCode').value;
-      if (!code) {
-        Utils.showNotification('Please enter transaction code', 'warning');
+      if (!user) {
+        Utils.showNotification('Please login first', 'warning');
+        window.location.href = 'index.html';
         return;
       }
       
-      // Simulate verification
-      Utils.showNotification('Verifying transaction...', 'info');
-      
-      setTimeout(() => {
-        const user = JSON.parse(localStorage.getItem('currentUser'));
-        user.paymentStatus = true;
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        
-        Utils.showNotification('Payment verified successfully!', 'success');
-        
+      // Check if already paid
+      if (user.paymentStatus) {
+        showStatus('You already have active access! Redirecting...', 'success');
         setTimeout(() => {
-          window.location.href = '/dashboard.html';
-        }, 1500);
-      }, 2000);
+          window.location.href = 'dashboard.html';
+        }, 2000);
+        return;
+      }
+      
+      paymentInProgress = true;
+      payBtn.disabled = true;
+      
+      showStatus('Initializing payment...', 'processing');
+      
+      try {
+        // Initialize payment with backend
+        const response = await fetch(`${CONFIG.APP.API_URL}/payments/initialize`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            email: user.email || 'customer@example.com',
+            amount: 200,
+            metadata: {
+              fullName: user.fullName,
+              phone: user.phone,
+              indexNumber: user.indexNumber,
+              source: 'new_payment_page'
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (data && data.success) {
+          // Store payment data temporarily
+          localStorage.setItem('pendingPayment', JSON.stringify({
+            reference: data.data.reference,
+            userId: user.id,
+            email: user.email,
+            fullName: user.fullName,
+            phone: user.phone,
+            indexNumber: user.indexNumber
+          }));
+
+          // Build Paystack payment URL
+          const paymentUrl = new URL('https://paystack.com/pay/kuccps-checker');
+          paymentUrl.searchParams.append('email', user.email || 'customer@example.com');
+          paymentUrl.searchParams.append('reference', data.data.reference);
+          paymentUrl.searchParams.append('user_id', user.id);
+          paymentUrl.searchParams.append('customer_name', user.fullName || 'Customer');
+          paymentUrl.searchParams.append('phone', user.phone || '');
+          paymentUrl.searchParams.append('index_number', user.indexNumber || '');
+
+          showStatus('Redirecting to Paystack...', 'processing');
+          
+          // Redirect to Paystack
+          setTimeout(() => {
+            window.location.href = paymentUrl.toString();
+          }, 1500);
+          
+        } else {
+          throw new Error(data?.message || 'Payment initialization failed');
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        showStatus('Payment failed. Please try again.', 'error');
+        payBtn.disabled = false;
+        paymentInProgress = false;
+      }
     }
+    
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById('paymentStatus');
+      statusDiv.className = `payment-status ${type} show`;
+      
+      if (type === 'processing') {
+        statusDiv.innerHTML = `
+          <div class="spinner"></div>
+          <p class="mt-3">${message}</p>
+        `;
+      } else if (type === 'success') {
+        statusDiv.innerHTML = `
+          <i class="bi bi-check-circle-fill" style="font-size: 3rem; color: #10b981;"></i>
+          <p class="mt-3">${message}</p>
+        `;
+      } else if (type === 'error') {
+        statusDiv.innerHTML = `
+          <i class="bi bi-x-circle-fill" style="font-size: 3rem; color: #ef4444;"></i>
+          <p class="mt-3">${message}</p>
+        `;
+      }
+    }
+    
+    function goBack() {
+      window.history.back();
+    }
+    
+    // Check URL for payment reference (if returning from Paystack)
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const reference = urlParams.get('reference');
+      const trxref = urlParams.get('trxref');
+      
+      if (reference || trxref) {
+        showStatus('Payment processing... Please wait.', 'processing');
+        
+        // Redirect to callback page
+        setTimeout(() => {
+          window.location.href = 'payment-callback.html?reference=' + (reference || trxref);
+        }, 1500);
+      }
+    });
   </script>
 </body>
 </html>
