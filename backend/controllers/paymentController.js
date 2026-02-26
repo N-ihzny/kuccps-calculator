@@ -4,7 +4,7 @@ const User = require('../models/User');
 const helpers = require('../utils/helpers');
 
 class PaymentController {
-    // Initialize Paystack payment
+    // Initialize Paystack payment - FIXED VERSION
     async initializePayment(req, res) {
         try {
             const { userId, email, amount, metadata } = req.body;
@@ -28,15 +28,26 @@ class PaymentController {
                 metadata: metadata || {}
             });
 
-            // In production, integrate with Paystack API here
-            // For now, return the reference and Paystack URL
+            // FIXED: Use your actual Paystack payment link
+            const authorization_url = `https://paystack.com/pay/kuccps-checker`;
+            
+            // Add query parameters to track the user
+            const urlWithParams = new URL(authorization_url);
+            urlWithParams.searchParams.append('email', email);
+            urlWithParams.searchParams.append('reference', reference);
+            urlWithParams.searchParams.append('user_id', userId);
+            
+            // Add any other metadata as query params
+            if (metadata.fullName) urlWithParams.searchParams.append('customer_name', metadata.fullName);
+            if (metadata.phone) urlWithParams.searchParams.append('phone', metadata.phone);
+            if (metadata.indexNumber) urlWithParams.searchParams.append('index_number', metadata.indexNumber);
 
             res.status(200).json({
                 success: true,
                 message: 'Payment initialized',
                 data: {
                     reference,
-                    authorization_url: `https://paystack.shop/pay/8gkdge-pmq?email=${email}&reference=${reference}`,
+                    authorization_url: urlWithParams.toString(),
                     access_code: helpers.generateRandomString(12)
                 }
             });
@@ -74,7 +85,21 @@ class PaymentController {
             }
 
             // In production, verify with Paystack API here
-            // For demo, assume payment is successful
+            // For now, check if already completed
+            if (transaction.status === 'completed') {
+                const user = await User.findById(transaction.user_id);
+                
+                return res.status(200).json({
+                    success: true,
+                    message: 'Payment already verified',
+                    data: {
+                        transaction,
+                        user
+                    }
+                });
+            }
+
+            // Assume payment is successful (in production, call Paystack API)
             const paymentSuccessful = true;
 
             if (paymentSuccessful) {
@@ -193,24 +218,72 @@ class PaymentController {
         }
     }
 
-    // Handle Paystack webhook
+    // Handle Paystack webhook - FIXED VERSION
     async handleWebhook(req, res) {
         try {
-            // In production, verify webhook signature
-            const event = req.body;
+            // Parse the raw body (already parsed by express.raw middleware)
+            let event;
+            try {
+                event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+            } catch (e) {
+                event = req.body;
+            }
+            
+            console.log('Webhook received:', event.event);
+
+            // In production, verify webhook signature here
+            // const signature = req.headers['x-paystack-signature'];
+            // const hash = crypto.createHmac('sha512', process.env.PAYSTACK_SECRET_KEY).update(JSON.stringify(event)).digest('hex');
+            // if (hash !== signature) return res.status(401).send('Unauthorized');
 
             if (event.event === 'charge.success') {
                 const { reference } = event.data;
+                const customerEmail = event.data.customer.email;
+                const amount = event.data.amount / 100; // Convert from kobo to KES
+                const metadata = event.data.metadata || {};
 
-                // Update transaction status
-                await Transaction.updateStatus(reference, 'completed');
+                console.log(`Processing successful payment for reference: ${reference}`);
 
-                // Get transaction to find user
-                const transaction = await Transaction.findByReference(reference);
+                // Check if transaction already exists
+                let transaction = await Transaction.findByReference(reference);
                 
                 if (transaction) {
+                    // Update existing transaction
+                    await Transaction.updateStatus(reference, 'completed');
+                    
                     // Update user payment status
                     await User.updatePaymentStatus(transaction.user_id, true);
+                    
+                    console.log(`Updated transaction ${reference} for user ${transaction.user_id}`);
+                } else {
+                    // Try to find user by email or metadata
+                    let userId = metadata.user_id;
+                    
+                    if (!userId) {
+                        // Find user by email
+                        const user = await User.findByEmail(customerEmail);
+                        if (user) {
+                            userId = user.id;
+                        }
+                    }
+                    
+                    if (userId) {
+                        // Create transaction record
+                        await Transaction.create({
+                            userId,
+                            reference,
+                            amount,
+                            status: 'completed',
+                            metadata: metadata
+                        });
+                        
+                        // Update user payment status
+                        await User.updatePaymentStatus(userId, true);
+                        
+                        console.log(`Created transaction ${reference} for user ${userId}`);
+                    } else {
+                        console.log(`Could not find user for reference ${reference}`);
+                    }
                 }
             }
 
