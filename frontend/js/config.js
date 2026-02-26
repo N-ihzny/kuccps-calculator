@@ -1,7 +1,7 @@
 // =====================================================
 // KUCCPS COURSE CHECKER - CONFIGURATION
 // Professional Configuration Management
-// UPDATED FOR RENDER DEPLOYMENT
+// FIXED - Correct API URLs for Render
 // =====================================================
 
 const CONFIG = {
@@ -11,17 +11,17 @@ const CONFIG = {
     VERSION: '2.0.0',
     DESCRIPTION: 'Official KUCCPS Course Eligibility Checker',
     URL: window.location.origin,
-    // Updated API_URL for Render deployment
+    // FIXED: Correct API_URL for Render deployment
     API_URL: (() => {
       // Check if running on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:5000/api/v1';
+        return 'http://localhost:5000/api';
       }
-      // For Render deployment
-      return 'https://kuccps-api.onrender.com/api/v1';
+      // FIXED: Use correct Render backend URL (kuccps-calculator NOT kuccps-api)
+      return 'https://kuccps-calculator.onrender.com/api';
     })(),
-    // Backup API URL in case primary fails
-    API_URL_BACKUP: 'https://kuccps-api-backup.onrender.com/api/v1',
+    // FIXED: Backup URL (same as primary since we have only one backend)
+    API_URL_BACKUP: 'https://kuccps-calculator.onrender.com/api',
   },
 
   // Payment Configuration
@@ -32,10 +32,11 @@ const CONFIG = {
     GATEWAY: 'Paystack',
     // Your actual Paystack public key
     PUBLISHABLE_KEY: 'pk_live_ff445561a3226d3adb26c22f9e0578c9f5b895a2',
-    PAYMENT_LINK: 'https://paystack.shop/pay/8gkdge-pmq',
-    WEBHOOK_URL: `${window.location.origin}/api/webhooks/paystack`,
+    // FIXED: Use your actual Paystack payment link
+    PAYMENT_LINK: 'https://paystack.com/pay/kuccps-checker',
+    WEBHOOK_URL: 'https://kuccps-calculator.onrender.com/api/webhooks/paystack',
     // Callback URL after payment
-    CALLBACK_URL: `${window.location.origin}/payment-callback.html`,
+    CALLBACK_URL: 'https://kuccps-calculator-1.onrender.com/payment-callback.html',
   },
 
   // KCSE Configuration
@@ -224,9 +225,10 @@ const CONFIG = {
     PLATFORM: 'render',
     ENVIRONMENT: window.location.hostname === 'localhost' ? 'development' : 'production',
     FRONTEND_URL: window.location.origin,
+    // FIXED: Correct backend URL
     BACKEND_URL: (() => {
       if (window.location.hostname === 'localhost') return 'http://localhost:5000';
-      return 'https://kuccps-api.onrender.com';
+      return 'https://kuccps-calculator.onrender.com';
     })(),
     VERSION: '2.0.0'
   }
