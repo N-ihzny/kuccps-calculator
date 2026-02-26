@@ -5,75 +5,75 @@ class Grade {
     static async create(gradeData) {
         const { userId, grades, meanGrade, totalPoints, subjectCount } = gradeData;
         
-        const [result] = await pool.query(
+        const result = await pool.query(
             `INSERT INTO grades (user_id, grades_data, mean_grade, total_points, subject_count) 
-             VALUES (?, ?, ?, ?, ?)`,
+             VALUES ($1, $2, $3, $4, $5) RETURNING id`,
             [userId, JSON.stringify(grades), meanGrade, totalPoints, subjectCount]
         );
         
-        return result.insertId;
+        return result.rows[0].id;
     }
 
     // Find grades by user ID
     static async findByUserId(userId) {
-        const [grades] = await pool.query(
-            'SELECT * FROM grades WHERE user_id = ? ORDER BY created_at DESC',
+        const result = await pool.query(
+            'SELECT * FROM grades WHERE user_id = $1 ORDER BY created_at DESC',
             [userId]
         );
-        return grades;
+        return result.rows;
     }
 
     // Find latest grades by user ID
     static async findLatestByUserId(userId) {
-        const [grades] = await pool.query(
-            'SELECT * FROM grades WHERE user_id = ? ORDER BY created_at DESC LIMIT 1',
+        const result = await pool.query(
+            'SELECT * FROM grades WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1',
             [userId]
         );
-        return grades[0];
+        return result.rows[0];
     }
 
     // Find grade by ID
     static async findById(id) {
-        const [grades] = await pool.query(
-            'SELECT * FROM grades WHERE id = ?',
+        const result = await pool.query(
+            'SELECT * FROM grades WHERE id = $1',
             [id]
         );
-        return grades[0];
+        return result.rows[0];
     }
 
     // Update grade
     static async update(id, updates) {
         const { grades, meanGrade, totalPoints, subjectCount } = updates;
         
-        const [result] = await pool.query(
+        const result = await pool.query(
             `UPDATE grades 
-             SET grades_data = ?, mean_grade = ?, total_points = ?, subject_count = ?
-             WHERE id = ?`,
+             SET grades_data = $1, mean_grade = $2, total_points = $3, subject_count = $4
+             WHERE id = $5`,
             [JSON.stringify(grades), meanGrade, totalPoints, subjectCount, id]
         );
 
-        return result.affectedRows > 0;
+        return result.rowCount > 0;
     }
 
     // Delete grade
     static async delete(id) {
-        const [result] = await pool.query('DELETE FROM grades WHERE id = ?', [id]);
-        return result.affectedRows > 0;
+        const result = await pool.query('DELETE FROM grades WHERE id = $1', [id]);
+        return result.rowCount > 0;
     }
 
     // Get average grades stats
     static async getUserStats(userId) {
-        const [stats] = await pool.query(
+        const result = await pool.query(
             `SELECT 
                 AVG(total_points) as avg_points,
                 COUNT(*) as total_attempts,
                 MAX(total_points) as best_points,
                 MIN(total_points) as worst_points
              FROM grades 
-             WHERE user_id = ?`,
+             WHERE user_id = $1`,
             [userId]
         );
-        return stats[0];
+        return result.rows[0];
     }
 }
 
