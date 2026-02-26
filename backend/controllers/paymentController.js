@@ -4,7 +4,7 @@ const User = require('../models/User');
 const helpers = require('../utils/helpers');
 
 class PaymentController {
-    // Initialize Paystack payment - FIXED VERSION
+    // Initialize Paystack payment - WITH BETTER ERROR LOGGING
     async initializePayment(req, res) {
         try {
             const { userId, email, amount, metadata } = req.body;
@@ -16,19 +16,43 @@ class PaymentController {
                 });
             }
 
+            console.log('Initializing payment for user:', userId, 'email:', email);
+
             // Generate transaction reference
             const reference = helpers.generateTransactionReference();
+            console.log('Generated reference:', reference);
 
             // Save pending transaction
-            await Transaction.create({
-                userId,
-                reference,
-                amount,
-                status: 'pending',
-                metadata: metadata || {}
-            });
+            try {
+                console.log('Attempting to create transaction...');
+                await Transaction.create({
+                    userId,
+                    reference,
+                    amount,
+                    status: 'pending',
+                    metadata: metadata || {}
+                });
+                console.log('Transaction created successfully');
+            } catch (dbError) {
+                console.error('❌ DATABASE ERROR - Transaction.create failed:', dbError);
+                console.error('Error details:', {
+                    message: dbError.message,
+                    code: dbError.code,
+                    sqlMessage: dbError.sqlMessage,
+                    sqlState: dbError.sqlState
+                });
+                return res.status(500).json({
+                    success: false,
+                    message: 'Database error: ' + dbError.message,
+                    error: {
+                        message: dbError.message,
+                        code: dbError.code,
+                        sqlMessage: dbError.sqlMessage
+                    }
+                });
+            }
 
-            // FIXED: Use your actual Paystack payment link
+            // Use your actual Paystack payment link
             const authorization_url = `https://paystack.com/pay/kuccps-checker`;
             
             // Add query parameters to track the user
@@ -42,6 +66,8 @@ class PaymentController {
             if (metadata.phone) urlWithParams.searchParams.append('phone', metadata.phone);
             if (metadata.indexNumber) urlWithParams.searchParams.append('index_number', metadata.indexNumber);
 
+            console.log('Payment initialized successfully, redirecting to:', urlWithParams.toString());
+
             res.status(200).json({
                 success: true,
                 message: 'Payment initialized',
@@ -53,7 +79,7 @@ class PaymentController {
             });
 
         } catch (error) {
-            console.error('Payment initialization error:', error);
+            console.error('❌ Payment initialization error:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error initializing payment',
@@ -73,6 +99,8 @@ class PaymentController {
                     message: 'Please provide transaction reference'
                 });
             }
+
+            console.log('Verifying payment for reference:', reference);
 
             // Find transaction
             const transaction = await Transaction.findByReference(reference);
@@ -133,7 +161,7 @@ class PaymentController {
             }
 
         } catch (error) {
-            console.error('Payment verification error:', error);
+            console.error('❌ Payment verification error:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error verifying payment',
@@ -155,7 +183,7 @@ class PaymentController {
             });
 
         } catch (error) {
-            console.error('Error fetching transactions:', error);
+            console.error('❌ Error fetching transactions:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error fetching transactions',
@@ -209,7 +237,7 @@ class PaymentController {
             });
 
         } catch (error) {
-            console.error('Error verifying existing payment:', error);
+            console.error('❌ Error verifying existing payment:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error verifying payment',
@@ -290,7 +318,7 @@ class PaymentController {
             res.status(200).json({ received: true });
 
         } catch (error) {
-            console.error('Webhook error:', error);
+            console.error('❌ Webhook error:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error processing webhook',
@@ -315,7 +343,7 @@ class PaymentController {
             });
 
         } catch (error) {
-            console.error('Error checking payment status:', error);
+            console.error('❌ Error checking payment status:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error checking payment status',
@@ -326,4 +354,3 @@ class PaymentController {
 }
 
 module.exports = new PaymentController();
-
