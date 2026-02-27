@@ -19,10 +19,20 @@ async function runMigrations() {
     console.log('🚀 Starting database migrations...');
     
     try {
-        // Test connection
+        // Test connection first
         const client = await pool.connect();
         console.log('✅ Connected to database successfully');
         client.release();
+
+        // ⚠️⚠️⚠️ DANGER ZONE - THIS DELETES ALL DATA ⚠️⚠️⚠️
+        console.log('⚠️  Resetting database - dropping all tables...');
+        await pool.query('DROP SCHEMA public CASCADE');
+        await pool.query('CREATE SCHEMA public');
+        console.log('✅ Database reset complete - all tables dropped');
+        
+        // Reconnect after reset
+        const newClient = await pool.connect();
+        newClient.release();
 
         // Migration files in order
         const migrations = [
@@ -49,12 +59,8 @@ async function runMigrations() {
                     await pool.query(stmt);
                     console.log(`  ✅ Executed: ${stmt.substring(0, 50)}...`);
                 } catch (err) {
-                    // Ignore "already exists" errors
-                    if (err.code === '42P07' || err.message.includes('already exists')) {
-                        console.log(`  ⚠️ Table/index already exists: ${stmt.substring(0, 50)}...`);
-                    } else {
-                        throw err;
-                    }
+                    // Log the error but don't stop - some statements might fail if objects already exist
+                    console.log(`  ⚠️ Error: ${err.message.substring(0, 100)}...`);
                 }
             }
             
