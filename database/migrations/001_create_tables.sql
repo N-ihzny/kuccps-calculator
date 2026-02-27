@@ -1,25 +1,24 @@
--- Migration 001: Create all tables
-USE kuccps_calculator;
+-- Migration 001: Create all tables for PostgreSQL
 
 -- =====================================================
 -- USERS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(20) UNIQUE,
     password VARCHAR(255) NOT NULL,
     index_number VARCHAR(50) UNIQUE,
-    exam_year INT,
+    exam_year INTEGER,
     school_name VARCHAR(255),
     county VARCHAR(100),
-    role ENUM('user', 'admin') DEFAULT 'user',
+    role VARCHAR(10) DEFAULT 'user' CHECK (role IN ('user', 'admin')),
     payment_status BOOLEAN DEFAULT FALSE,
-    auth_provider ENUM('local', 'google', 'facebook', 'apple') DEFAULT 'local',
-    last_login TIMESTAMP NULL,
+    auth_provider VARCHAR(10) DEFAULT 'local' CHECK (auth_provider IN ('local', 'google', 'facebook', 'apple')),
+    last_login TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
@@ -27,7 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- =====================================================
 CREATE TABLE IF NOT EXISTS grade_points (
     grade VARCHAR(2) PRIMARY KEY,
-    points INT NOT NULL,
+    points INTEGER NOT NULL,
     description VARCHAR(50)
 );
 
@@ -35,11 +34,11 @@ CREATE TABLE IF NOT EXISTS grade_points (
 -- INSTITUTIONS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS institutions (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     code VARCHAR(50) UNIQUE,
-    type ENUM('university', 'kmtc', 'ttc', 'tvet', 'national_polytechnic', 'other') NOT NULL,
-    category ENUM('public', 'private', 'constituent') DEFAULT 'public',
+    type VARCHAR(30) NOT NULL CHECK (type IN ('university', 'kmtc', 'ttc', 'tvet', 'national_polytechnic', 'other')),
+    category VARCHAR(20) DEFAULT 'public' CHECK (category IN ('public', 'private', 'constituent')),
     location VARCHAR(255),
     county VARCHAR(100),
     website VARCHAR(255),
@@ -47,20 +46,20 @@ CREATE TABLE IF NOT EXISTS institutions (
     description TEXT,
     contact_email VARCHAR(255),
     contact_phone VARCHAR(20),
-    established_year INT,
+    established_year INTEGER,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- SUBJECTS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS subjects (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     code VARCHAR(20) UNIQUE NOT NULL,
-    subject_group INT NOT NULL COMMENT '1=Compulsory, 2=Sciences, 3=Humanities, 4=Technical, 5=Languages',
+    subject_group INTEGER NOT NULL,
     is_compulsory BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -69,131 +68,123 @@ CREATE TABLE IF NOT EXISTS subjects (
 -- COURSES TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS courses (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    institution_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    institution_id INTEGER NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     code VARCHAR(50) UNIQUE,
-    program_type ENUM('degree', 'diploma', 'certificate', 'kmtc', 'artisan', 'craft', 'higher_diploma', 'masters', 'phd') NOT NULL,
+    program_type VARCHAR(20) NOT NULL CHECK (program_type IN ('degree', 'diploma', 'certificate', 'kmtc', 'artisan', 'craft', 'higher_diploma', 'masters', 'phd')),
     duration_years DECIMAL(3,1),
     degree_type VARCHAR(100) DEFAULT 'Bachelor',
     description TEXT,
     career_opportunities TEXT,
     cut_off_points DECIMAL(5,2),
-    demand_level INT DEFAULT 50,
+    demand_level INTEGER DEFAULT 50,
     application_deadline DATE,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (institution_id) REFERENCES institutions(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- COURSE REQUIREMENTS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS course_requirements (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    course_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     subject_code VARCHAR(20) NOT NULL,
     minimum_grade VARCHAR(5) NOT NULL,
-    weight INT DEFAULT 1,
+    weight INTEGER DEFAULT 1,
     is_mandatory BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- TRANSACTIONS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS transactions (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     reference VARCHAR(100) UNIQUE NOT NULL,
-    amount INT NOT NULL,
-    status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'pending',
-    payment_method ENUM('mpesa', 'card', 'bank') DEFAULT 'mpesa',
-    metadata JSON,
-    paid_at TIMESTAMP NULL,
+    amount INTEGER NOT NULL,
+    status VARCHAR(10) DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
+    payment_method VARCHAR(10) DEFAULT 'mpesa' CHECK (payment_method IN ('mpesa', 'card', 'bank')),
+    metadata JSONB,
+    paid_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- GRADES TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS grades (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    grades_data JSON NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    grades_data JSONB NOT NULL,
     mean_grade VARCHAR(5),
-    total_points INT,
-    subject_count INT,
+    total_points INTEGER,
+    subject_count INTEGER,
     is_verified BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- RESULTS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS results (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    program_type ENUM('degree', 'diploma', 'certificate', 'kmtc', 'artisan', 'craft', 'higher_diploma') NOT NULL,
-    results_data JSON NOT NULL,
-    summary JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    program_type VARCHAR(20) NOT NULL CHECK (program_type IN ('degree', 'diploma', 'certificate', 'kmtc', 'artisan', 'craft', 'higher_diploma')),
+    results_data JSONB NOT NULL,
+    summary JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- USER SESSIONS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS user_sessions (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token VARCHAR(500) NOT NULL,
     device_info VARCHAR(500),
     ip_address VARCHAR(45),
     expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- NOTIFICATIONS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS notifications (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
-    type ENUM('info', 'success', 'warning', 'error') DEFAULT 'info',
+    type VARCHAR(10) DEFAULT 'info' CHECK (type IN ('info', 'success', 'warning', 'error')),
     is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- FEEDBACK TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS feedback (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     name VARCHAR(255),
     email VARCHAR(255),
     message TEXT NOT NULL,
-    rating INT CHECK (rating >= 1 AND rating <= 5),
-    status ENUM('pending', 'read', 'replied') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+    status VARCHAR(10) DEFAULT 'pending' CHECK (status IN ('pending', 'read', 'replied')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
 -- COUNTIES TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS counties (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     code VARCHAR(10) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
