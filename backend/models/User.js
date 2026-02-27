@@ -1,14 +1,14 @@
 const { pool } = require('../config/database');
 
 class User {
-    // Create new user
+    // Create new user - UPDATED to accept id parameter
     static async create(userData) {
-        const { fullName, email, phone, password, indexNumber, examYear, schoolName, county, authProvider } = userData;
+        const { id, fullName, email, phone, password, indexNumber, examYear, schoolName, county, authProvider } = userData;
         
         const result = await pool.query(
-            `INSERT INTO users (full_name, email, phone, password, index_number, exam_year, school_name, county, auth_provider) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-            [fullName, email, phone, password, indexNumber || null, examYear || null, schoolName || null, county || null, authProvider || 'local']
+            `INSERT INTO users (id, full_name, email, phone, password, index_number, exam_year, school_name, county, auth_provider) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+            [id, fullName, email, phone, password, indexNumber || null, examYear || null, schoolName || null, county || null, authProvider || 'local']
         );
         
         return result.rows[0].id;
