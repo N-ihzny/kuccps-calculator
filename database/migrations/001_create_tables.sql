@@ -1,10 +1,10 @@
--- Migration 001: Create all tables for PostgreSQL
+-- Migration 001: Create all tables for PostgreSQL with VARCHAR IDs
 
 -- =====================================================
 -- USERS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(50) PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(20) UNIQUE,
@@ -99,11 +99,11 @@ CREATE TABLE IF NOT EXISTS course_requirements (
 );
 
 -- =====================================================
--- TRANSACTIONS TABLE
+-- TRANSACTIONS TABLE (UPDATED with VARCHAR user_id)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id VARCHAR(50) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     reference VARCHAR(100) UNIQUE NOT NULL,
     amount INTEGER NOT NULL,
     status VARCHAR(10) DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
@@ -115,11 +115,11 @@ CREATE TABLE IF NOT EXISTS transactions (
 );
 
 -- =====================================================
--- GRADES TABLE
+-- GRADES TABLE (UPDATED with VARCHAR user_id)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS grades (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id VARCHAR(50) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     grades_data JSONB NOT NULL,
     mean_grade VARCHAR(5),
     total_points INTEGER,
@@ -129,11 +129,11 @@ CREATE TABLE IF NOT EXISTS grades (
 );
 
 -- =====================================================
--- RESULTS TABLE
+-- RESULTS TABLE (UPDATED with VARCHAR user_id)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS results (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id VARCHAR(50) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     program_type VARCHAR(20) NOT NULL CHECK (program_type IN ('degree', 'diploma', 'certificate', 'kmtc', 'artisan', 'craft', 'higher_diploma')),
     results_data JSONB NOT NULL,
     summary JSONB,
@@ -141,11 +141,11 @@ CREATE TABLE IF NOT EXISTS results (
 );
 
 -- =====================================================
--- USER SESSIONS TABLE
+-- USER SESSIONS TABLE (UPDATED with VARCHAR user_id)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS user_sessions (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id VARCHAR(50) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token VARCHAR(500) NOT NULL,
     device_info VARCHAR(500),
     ip_address VARCHAR(45),
@@ -154,11 +154,11 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 );
 
 -- =====================================================
--- NOTIFICATIONS TABLE
+-- NOTIFICATIONS TABLE (UPDATED with VARCHAR user_id)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS notifications (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id VARCHAR(50) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
     type VARCHAR(10) DEFAULT 'info' CHECK (type IN ('info', 'success', 'warning', 'error')),
@@ -167,11 +167,11 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 -- =====================================================
--- FEEDBACK TABLE
+-- FEEDBACK TABLE (UPDATED with VARCHAR user_id)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS feedback (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    user_id VARCHAR(50) REFERENCES users(id) ON DELETE SET NULL,
     name VARCHAR(255),
     email VARCHAR(255),
     message TEXT NOT NULL,
