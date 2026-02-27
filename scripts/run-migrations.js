@@ -24,11 +24,7 @@ async function runMigrations() {
         console.log('✅ Connected to database successfully');
         client.release();
 
-        // ⚠️⚠️⚠️ DANGER ZONE - THIS DELETES ALL DATA ⚠️⚠️⚠️
-        console.log('⚠️  Resetting database - dropping all tables...');
-        await pool.query('DROP SCHEMA public CASCADE');
-        await pool.query('CREATE SCHEMA public');
-        console.log('✅ Database reset complete - all tables dropped');
+      
         
         // Reconnect after reset
         const newClient = await pool.connect();
