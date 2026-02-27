@@ -6,7 +6,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 // Import database connection
-const { testConnection } = require('./config/database');
+const { testConnection, pool } = require('./config/database');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -115,13 +115,51 @@ app.use((req, res) => {
     });
 });
 
+// Function to run migrations
+const runMigrations = async () => {
+    try {
+        console.log('🔄 Checking if migrations need to run...');
+        
+        // Check if users table exists
+        const tableCheck = await pool.query(`
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'users'
+            );
+        `);
+        
+        if (!tableCheck.rows[0].exists) {
+            console.log('📦 Tables not found. Running migrations...');
+            
+            const { exec } = require('child_process');
+            exec('npm run migrate', (error, stdout, stderr) => {
+                if (error) {
+                    console.error('❌ Migration failed:', error);
+                    return;
+                }
+                console.log(stdout);
+                if (stderr) console.error(stderr);
+                console.log('✅ Migrations completed');
+            });
+        } else {
+            console.log('✅ Tables already exist');
+        }
+    } catch (error) {
+        console.error('❌ Error checking tables:', error);
+    }
+};
+
 // Start server
 const startServer = async () => {
     try {
         // Test database connection
         const dbConnected = await testConnection();
         
-        if (!dbConnected) {
+        if (dbConnected) {
+            console.log('✅ Database connected successfully');
+            // Run migrations if database is connected
+            await runMigrations();
+        } else {
             console.warn('⚠️  Warning: Database connection failed. Server will start but database features may not work.');
         }
 
