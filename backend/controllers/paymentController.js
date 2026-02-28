@@ -21,19 +21,18 @@ class PaymentController {
                 });
             }
 
-            // 🔥 FIX: Check if user exists, create if not
+            // Check if user exists, create if not
             try {
                 let user = await User.findById(userId);
                 if (!user) {
                     console.log('📝 User not found in database, creating new user...');
                     
-                    // Create the user on the fly
                     await User.create({
                         id: userId,
                         fullName: metadata?.fullName || email.split('@')[0],
                         email: email,
                         phone: metadata?.phone || '',
-                        password: 'temp_' + Date.now(), // Temporary password
+                        password: 'temp_' + Date.now(),
                         indexNumber: metadata?.indexNumber || null,
                         paymentStatus: false
                     });
@@ -43,7 +42,6 @@ class PaymentController {
                 }
             } catch (userError) {
                 console.error('❌ Error checking/creating user:', userError);
-                // Continue anyway - maybe transaction will work
             }
 
             const reference = helpers.generateTransactionReference();
@@ -67,14 +65,28 @@ class PaymentController {
                 });
             }
 
-            const authorization_url = `https://paystack.com/pay/kuccps-checker`;
+            // FIXED: Use the correct working URL
+            const authorization_url = `https://paystack.shop/pay/8gkdge-pmq`;
+            
+            // Create URL object to append parameters
             const urlWithParams = new URL(authorization_url);
+            
+            // Split full name into first and last name
+            const fullName = metadata?.fullName || 'Customer';
+            const nameParts = fullName.split(' ');
+            const firstName = nameParts[0] || 'Customer';
+            const lastName = nameParts.slice(1).join(' ') || 'Name';
+            
+            // Append all necessary parameters exactly as the form expects
+            urlWithParams.searchParams.append('first_name', firstName);
+            urlWithParams.searchParams.append('last_name', lastName);
             urlWithParams.searchParams.append('email', email);
+            urlWithParams.searchParams.append('phone', metadata?.phone || '');
+            urlWithParams.searchParams.append('amount', amount.toString());
+            
+            // Also add custom fields for tracking
             urlWithParams.searchParams.append('reference', reference);
             urlWithParams.searchParams.append('user_id', userId);
-            
-            if (metadata?.fullName) urlWithParams.searchParams.append('customer_name', metadata.fullName);
-            if (metadata?.phone) urlWithParams.searchParams.append('phone', metadata.phone);
             if (metadata?.indexNumber) urlWithParams.searchParams.append('index_number', metadata.indexNumber);
 
             res.status(200).json({
@@ -234,7 +246,6 @@ class PaymentController {
                 });
             }
 
-            // Find user by index number
             const user = await User.findByIndexNumber(indexNumber);
 
             if (!user || user.email !== email) {
@@ -244,7 +255,6 @@ class PaymentController {
                 });
             }
 
-            // Find completed transaction
             const transaction = await Transaction.getLatestSuccessful(user.id);
 
             if (!transaction) {
@@ -254,7 +264,6 @@ class PaymentController {
                 });
             }
 
-            // Remove password from response
             delete user.password;
 
             res.status(200).json({
@@ -292,10 +301,8 @@ class PaymentController {
                 const { reference } = event.data;
                 console.log('✅ Payment successful for reference:', reference);
                 
-                // Update transaction status
                 await Transaction.updateStatus(reference, 'completed');
                 
-                // Find transaction to get user_id
                 const transaction = await Transaction.findByReference(reference);
                 if (transaction) {
                     await User.updatePaymentStatus(transaction.user_id, true);
