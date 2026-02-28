@@ -16,32 +16,27 @@ async function runMigrations() {
     console.log('🚀 Starting database migrations...');
     
     try {
-        // Test connection
         await pool.connect();
         console.log('✅ Connected to database');
+
+        // 🔥 FORCE RESET - DROP ALL TABLES 🔥
+        console.log('⚠️  Dropping all existing tables...');
+        await pool.query('DROP SCHEMA public CASCADE');
+        await pool.query('CREATE SCHEMA public');
+        console.log('✅ Database reset complete');
 
         // Read migration file
         const sqlPath = path.join(__dirname, '..', 'database', 'migrations', '001_create_tables.sql');
         const sql = fs.readFileSync(sqlPath, 'utf8');
         
-        // Split into individual statements
-        const statements = sql
-            .split(';')
-            .map(stmt => stmt.trim())
-            .filter(stmt => stmt.length > 0);
-
-        // Execute each statement
+        const statements = sql.split(';').filter(stmt => stmt.trim().length > 0);
+        
         for (let stmt of statements) {
             try {
                 await pool.query(stmt);
                 console.log(`✅ Executed: ${stmt.substring(0, 50)}...`);
             } catch (err) {
-                // Ignore "already exists" errors
-                if (err.code === '42P07' || err.message.includes('already exists')) {
-                    console.log(`⚠️  Already exists: ${stmt.substring(0, 50)}...`);
-                } else {
-                    console.log(`⚠️  Error: ${err.message.substring(0, 100)}`);
-                }
+                console.log(`⚠️  Error: ${err.message.substring(0, 100)}`);
             }
         }
         
