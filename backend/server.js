@@ -115,37 +115,23 @@ app.use((req, res) => {
     });
 });
 
-// Function to run migrations
+// Function to run migrations - FORCED RUN (UPDATED)
 const runMigrations = async () => {
     try {
-        console.log('🔄 Checking if migrations need to run...');
+        console.log('🔄 Running migrations...');
         
-        // Check if users table exists
-        const tableCheck = await pool.query(`
-            SELECT EXISTS (
-                SELECT FROM information_schema.tables 
-                WHERE table_name = 'users'
-            );
-        `);
-        
-        if (!tableCheck.rows[0].exists) {
-            console.log('📦 Tables not found. Running migrations...');
-            
-            const { exec } = require('child_process');
-            exec('npm run migrate', (error, stdout, stderr) => {
-                if (error) {
-                    console.error('❌ Migration failed:', error);
-                    return;
-                }
-                console.log(stdout);
-                if (stderr) console.error(stderr);
-                console.log('✅ Migrations completed');
-            });
-        } else {
-            console.log('✅ Tables already exist');
-        }
+        const { exec } = require('child_process');
+        exec('npm run migrate', (error, stdout, stderr) => {
+            if (error) {
+                console.error('❌ Migration failed:', error);
+                return;
+            }
+            console.log(stdout);
+            if (stderr) console.error(stderr);
+            console.log('✅ Migrations completed');
+        });
     } catch (error) {
-        console.error('❌ Error checking tables:', error);
+        console.error('❌ Error running migrations:', error);
     }
 };
 
