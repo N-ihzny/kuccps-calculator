@@ -21,6 +21,31 @@ class PaymentController {
                 });
             }
 
+            // 🔥 FIX: Check if user exists, create if not
+            try {
+                let user = await User.findById(userId);
+                if (!user) {
+                    console.log('📝 User not found in database, creating new user...');
+                    
+                    // Create the user on the fly
+                    await User.create({
+                        id: userId,
+                        fullName: metadata?.fullName || email.split('@')[0],
+                        email: email,
+                        phone: metadata?.phone || '',
+                        password: 'temp_' + Date.now(), // Temporary password
+                        indexNumber: metadata?.indexNumber || null,
+                        paymentStatus: false
+                    });
+                    console.log('✅ User created successfully:', userId);
+                } else {
+                    console.log('✅ User found in database:', userId);
+                }
+            } catch (userError) {
+                console.error('❌ Error checking/creating user:', userError);
+                // Continue anyway - maybe transaction will work
+            }
+
             const reference = helpers.generateTransactionReference();
             console.log('📝 Generated reference:', reference);
 
@@ -255,7 +280,6 @@ class PaymentController {
             
             let event;
             try {
-                // Parse the raw body
                 event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
             } catch (e) {
                 console.error('❌ Failed to parse webhook body:', e);
@@ -281,11 +305,9 @@ class PaymentController {
                 }
             }
             
-            // Always return 200 to acknowledge receipt
             res.status(200).json({ received: true });
         } catch (error) {
             console.error('❌ Webhook error:', error);
-            // Still return 200 to prevent Paystack from retrying
             res.status(200).json({ received: true });
         }
     }
