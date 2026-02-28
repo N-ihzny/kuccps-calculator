@@ -65,8 +65,8 @@ class PaymentController {
                 });
             }
 
-            // FIXED: Use the correct working URL
-            const authorization_url = `https://paystack.shop/pay/8gkdge-pmq`;
+            // 🔥 FIXED: Using your actual Paystack payment page link
+            const authorization_url = `https://paystack.shop/pay/uo4c2h9nz6`;
             
             // Create URL object to append parameters
             const urlWithParams = new URL(authorization_url);
@@ -109,6 +109,8 @@ class PaymentController {
         }
     }
 
+    // ... rest of your methods remain exactly the same ...
+    
     // Verify Paystack payment
     async verifyPayment(req, res) {
         try {
