@@ -7,7 +7,6 @@ class Calculator {
         };
     }
 
-    // Calculate total points from grades
     calculateTotalPoints(grades) {
         let total = 0;
         for (const grade of Object.values(grades)) {
@@ -18,7 +17,6 @@ class Calculator {
         return total;
     }
 
-    // Calculate mean grade from points
     calculateMeanGrade(totalPoints, subjectCount = 7) {
         const mean = totalPoints / subjectCount;
         
@@ -36,7 +34,6 @@ class Calculator {
         return 'E';
     }
 
-    // Calculate cluster points
     calculateClusterPoints(grades, clusterSubjects = []) {
         let clusterTotal = 0;
         let clusterCount = 0;
@@ -49,19 +46,17 @@ class Calculator {
         }
 
         const totalPoints = this.calculateTotalPoints(grades);
-        
-        // KUCCPS cluster points formula (simplified)
-        // (Cluster Subjects Total / 48) * 48 + (Total Points / 84) * 36
         const clusterAverage = clusterCount > 0 ? (clusterTotal / clusterCount) : 0;
         const totalAverage = totalPoints / 7;
 
         return ((clusterAverage * 48) + (totalAverage * 36)) / 84;
     }
 
-    // Check if grades meet course requirements
     meetsRequirements(grades, requirements) {
+        if (!requirements || requirements.length === 0) return true;
+        
         for (const req of requirements) {
-            const grade = grades[req.subject];
+            const grade = grades[req.subject_code];
             if (!grade) return false;
             
             const gradePoints = this.gradePoints[grade] || 0;
@@ -72,7 +67,6 @@ class Calculator {
         return true;
     }
 
-    // Get subject breakdown
     getSubjectBreakdown(grades, clusterSubjects = []) {
         const breakdown = [];
 
@@ -90,15 +84,12 @@ class Calculator {
         return breakdown.sort((a, b) => b.points - a.points);
     }
 
-    // Calculate recommendation score
     calculateRecommendationScore(clusterPoints, cutoffPoints, demandLevel = 50) {
         const pointsDiff = clusterPoints - (cutoffPoints || 0);
-        const demandFactor = (100 - demandLevel) / 100; // Lower demand = higher score
-        
+        const demandFactor = (100 - demandLevel) / 100;
         return (pointsDiff * 10) + (demandFactor * 5);
     }
 
-    // Get best subjects
     getBestSubjects(grades, count = 7) {
         const subjects = this.getSubjectBreakdown(grades);
         return subjects.slice(0, count);
