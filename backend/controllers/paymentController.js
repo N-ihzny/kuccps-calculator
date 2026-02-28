@@ -65,8 +65,8 @@ class PaymentController {
                 });
             }
 
-            // ✅ CORRECT: Using your actual Paystack payment page link
-            const authorization_url = `https://paystack.shop/pay/uo4c2h9nz6`;
+            // ✅ FIXED: Using the WORKING payment page with successful transactions
+            const authorization_url = `https://paystack.shop/pay/8gkdege-pmq`;
             
             // Create URL object to append parameters
             const urlWithParams = new URL(authorization_url);
