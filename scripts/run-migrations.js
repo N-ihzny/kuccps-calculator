@@ -19,7 +19,11 @@ async function runMigrations() {
         await pool.connect();
         console.log('✅ Connected to database');
 
-      
+        // 🔥 FORCE RESET - DROP ALL TABLES 🔥
+        console.log('⚠️  Dropping all existing tables...');
+        await pool.query('DROP SCHEMA public CASCADE');
+        await pool.query('CREATE SCHEMA public');
+        console.log('✅ Database reset complete');
 
         // Read migration file
         const sqlPath = path.join(__dirname, '..', 'database', 'migrations', '001_create_tables.sql');
