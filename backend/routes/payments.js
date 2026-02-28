@@ -1,69 +1,54 @@
 const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/paymentController');
-const {
-    validatePaymentInit,
-    validatePaymentVerify,
-    validateExistingPayment
-} = require('../middleware/validation');
 
 // Public routes
-router.post('/verify-existing', validateExistingPayment, (req, res) => paymentController.verifyExistingPayment(req, res));
-router.post('/verify', validatePaymentVerify, (req, res) => paymentController.verifyPayment(req, res));
+router.post('/verify-existing', (req, res) => {
+    paymentController.verifyExistingPayment(req, res);
+});
 
-// Protected routes - accept both token AND X-User-ID
-router.post('/initialize', validatePaymentInit, (req, res, next) => {
-    try {
-        const userId = req.body.userId || req.headers['x-user-id'];
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: 'User ID required'
-            });
-        }
-        if (!req.body.userId && userId) {
-            req.body.userId = userId;
-        }
-        next();
-    } catch (error) {
-        next(error);
-    }
-}, (req, res) => paymentController.initializePayment(req, res));
+router.post('/verify', (req, res) => {
+    paymentController.verifyPayment(req, res);
+});
 
-router.get('/user/:userId', (req, res, next) => {
-    try {
-        const userId = req.params.userId || req.headers['x-user-id'];
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: 'User ID required'
-            });
-        }
-        if (!req.params.userId && userId) {
-            req.params.userId = userId;
-        }
-        next();
-    } catch (error) {
-        next(error);
+// Payment initialization
+router.post('/initialize', (req, res) => {
+    // Get userId from body or header
+    const userId = req.body.userId || req.headers['x-user-id'];
+    if (!userId) {
+        return res.status(401).json({
+            success: false,
+            message: 'User ID required'
+        });
     }
-}, (req, res) => paymentController.getUserTransactions(req, res));
+    req.body.userId = userId;
+    paymentController.initializePayment(req, res);
+});
 
-router.get('/status/:userId', (req, res, next) => {
-    try {
-        const userId = req.params.userId || req.headers['x-user-id'];
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: 'User ID required'
-            });
-        }
-        if (!req.params.userId && userId) {
-            req.params.userId = userId;
-        }
-        next();
-    } catch (error) {
-        next(error);
+// Get payment status
+router.get('/status/:userId', (req, res) => {
+    const userId = req.params.userId || req.headers['x-user-id'];
+    if (!userId) {
+        return res.status(401).json({
+            success: false,
+            message: 'User ID required'
+        });
     }
-}, (req, res) => paymentController.getPaymentStatus(req, res));
+    req.params.userId = userId;
+    paymentController.getPaymentStatus(req, res);
+});
+
+// Get user transactions
+router.get('/user/:userId', (req, res) => {
+    const userId = req.params.userId || req.headers['x-user-id'];
+    if (!userId) {
+        return res.status(401).json({
+            success: false,
+            message: 'User ID required'
+        });
+    }
+    req.params.userId = userId;
+    paymentController.getUserTransactions(req, res);
+});
 
 module.exports = router;
