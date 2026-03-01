@@ -65,8 +65,8 @@ class PaymentController {
                 });
             }
 
-            // ✅ FIXED: Using the WORKING payment page with successful transactions
-            const authorization_url = `https://paystack.shop/pay/8gkdege-pmq`;
+            // ✅ NEW: Using the newly created payment page
+            const authorization_url = `https://paystack.shop/pay/svh7pwtsss8`;
             
             // Create URL object to append parameters
             const urlWithParams = new URL(authorization_url);
@@ -321,5 +321,3 @@ class PaymentController {
 }
 
 module.exports = new PaymentController();
-
-
